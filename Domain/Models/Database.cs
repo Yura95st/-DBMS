@@ -8,6 +8,6 @@
 
         private string _name;
 
-        private Dictionary<string, Table> _tables;
+        private List<string> _tableNames;
     }
 }
