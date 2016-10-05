@@ -4,10 +4,16 @@
 
     internal class Database
     {
-        private User _creator;
+        public string Name
+        {
+            get;
+            set;
+        }
 
-        private string _name;
-
-        private List<string> _tableNames;
+        public IEnumerable<string> TableNames
+        {
+            get;
+            set;
+        }
     }
 }

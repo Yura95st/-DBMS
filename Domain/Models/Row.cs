@@ -4,6 +4,10 @@
 
     internal class Row
     {
-        private Dictionary<Column, string> _value;
+        public IDictionary<Column, string> Value
+        {
+            get;
+            set;
+        }
     }
 }

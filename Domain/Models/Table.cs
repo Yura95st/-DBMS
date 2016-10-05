@@ -4,10 +4,22 @@
 
     internal class Table
     {
-        private List<Column> _columns;
+        public IList<Column> Columns
+        {
+            get;
+            set;
+        }
 
-        private string _name;
+        public string Name
+        {
+            get;
+            set;
+        }
 
-        private List<Row> _rows;
+        public IEnumerable<Row> Rows
+        {
+            get;
+            set;
+        }
     }
 }

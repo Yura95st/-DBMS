@@ -4,6 +4,16 @@
 
     internal class User
     {
-        private UserType _type;
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        public UserType Type
+        {
+            get;
+            set;
+        }
     }
 }

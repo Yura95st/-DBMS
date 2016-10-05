@@ -2,8 +2,16 @@
 {
     internal class Column
     {
-        private DataType _dataType;
+        public string Name
+        {
+            get;
+            set;
+        }
 
-        private string _name;
+        public DataType Type
+        {
+            get;
+            set;
+        }
     }
 }
