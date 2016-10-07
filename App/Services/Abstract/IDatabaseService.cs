@@ -1,6 +1,6 @@
-﻿namespace Domain.Services.Abstract
+﻿namespace App.Services.Abstract
 {
-    using Domain.Models;
+    using App.Models;
 
     public interface IDatabaseService
     {

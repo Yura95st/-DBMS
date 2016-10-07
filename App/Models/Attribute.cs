@@ -1,5 +1,7 @@
-﻿namespace Domain.Models
+﻿namespace App.Models
 {
+    using App.Enums;
+
     public class Attribute
     {
         public string Name

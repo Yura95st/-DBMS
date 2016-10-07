@@ -1,16 +1,22 @@
-﻿namespace Domain.Models
+﻿namespace App.Models
 {
     using System.Collections.Generic;
 
-    public class Database
+    public class Table
     {
+        public IList<Attribute> Attributes
+        {
+            get;
+            set;
+        }
+
         public string Name
         {
             get;
             set;
         }
 
-        public IEnumerable<string> TableNames
+        public IEnumerable<Row> Rows
         {
             get;
             set;

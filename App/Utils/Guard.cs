@@ -1,4 +1,4 @@
-﻿namespace Domain.Utils
+﻿namespace App.Utils
 {
     using System;
 

@@ -1,4 +1,4 @@
-﻿namespace Domain.Models
+﻿namespace App.Models
 {
     using System.Collections.Generic;
 

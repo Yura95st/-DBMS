@@ -1,4 +1,4 @@
-﻿namespace Domain.Models
+﻿namespace App.Enums
 {
     using System.Text.RegularExpressions;
 
