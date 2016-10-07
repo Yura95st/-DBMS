@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    internal class Table
+    public class Table
     {
-        public IList<Column> Columns
+        public IList<Attribute> Attributes
         {
             get;
             set;

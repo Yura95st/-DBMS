@@ -2,20 +2,20 @@
 {
     using Domain.Models;
 
-    internal interface IDatabaseService
+    public interface IDatabaseService
     {
-        void CreateTable(Database db, Table table, User user);
+        void CreateTable(Database db, Table table);
 
-        Database CreateDatabase(string dbName, User user);
+        Database CreateDatabase(string dbName);
 
-        void DropDatabase(Database db, User user);
+        void DropDatabase(Database db);
 
-        void DropTable(Database db, string tableName, User user);
+        void DropTable(Database db, string tableName);
 
         Database GetDatabase(string dbName);
 
         Table GetTable(Database db, string tableName);
 
-        void UpdateTable(Database db, Table table, User user);
+        void UpdateTable(Database db, Table table);
     }
 }

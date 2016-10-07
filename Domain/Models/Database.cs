@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    internal class Database
+    public class Database
     {
         public string Name
         {

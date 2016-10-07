@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    internal class Row
+    public class Row
     {
-        public IDictionary<Column, string> Value
+        public IDictionary<Attribute, string> Value
         {
             get;
             set;

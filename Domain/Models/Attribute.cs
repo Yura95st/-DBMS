@@ -1,6 +1,6 @@
 ﻿namespace Domain.Models
 {
-    internal class Column
+    public class Attribute
     {
         public string Name
         {

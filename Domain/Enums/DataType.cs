@@ -2,7 +2,7 @@
 {
     using System.Text.RegularExpressions;
 
-    internal class DataType
+    public class DataType
     {
         private string _name;
 
