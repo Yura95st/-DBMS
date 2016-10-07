@@ -109,16 +109,21 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Enums\DataType.cs" />
+    <Compile Include="Exceptions\DatabaseAlreadyExistsException.cs" />
+    <Compile Include="Exceptions\InvalidNameFormatException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\Database.cs" />
+    <Compile Include="Models\DatabaseServiceSettings.cs" />
     <Compile Include="Models\Row.cs" />
     <Compile Include="Models\Table.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Abstract\IDatabaseService.cs" />
+    <Compile Include="Services\Concrete\DatabaseService.cs" />
     <Compile Include="Utils\Guard.cs" />
+    <Compile Include="Validations\Abstract\INameValidation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -133,8 +138,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\" />
-    <Folder Include="Exceptions\" />
-    <Folder Include="Services\Concrete\" />
+    <Folder Include="Validations\Concrete\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <PropertyGroup>
