@@ -120,10 +120,10 @@
 
             target.CreateDatabase(testDb.Name);
 
-            //foreach (string tableName in testDb.TableNames)
-            //{
-            //    target.CreateTable(testDb.Name, new Table { Name = tableName });
-            //}
+            foreach (string tableName in testDb.TableNames)
+            {
+                target.CreateTable(testDb.Name, new Table { Name = tableName });
+            }
 
             // Act
             Database db = target.GetDatabase(testDb.Name);
@@ -166,5 +166,47 @@
             this._nameValidationMock.Setup(v => v.IsValidDatabaseName(It.IsAny<string>()))
                 .Returns(true);
         }
+
+        [Test]
+        public void DropDatabase_DatabaseNameIsNull_ThrowsArgumentNullException()
+        {
+            // Arrange
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._nameValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => target.DropDatabase(null));
+        }
+
+        [Test]
+        public void DropDatabase_DatabaseNameIsValid_DropsDatabase()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._nameValidationMock.Object);
+
+            target.CreateDatabase(dbName);
+
+            // Act
+            target.DropDatabase(dbName);
+
+            // Assert
+            Assert.IsNull(target.GetDatabase(dbName));
+        }
+
+        [Test]
+        public void DropDatabase_NonexistentDatabaseName_ThrowsDatabaseNotFoundException()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._nameValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<DatabaseNotFoundException>(() => target.DropDatabase(dbName));
+        }
+
     }
 }

@@ -53,7 +53,14 @@
 
         public void DropDatabase(string dbName)
         {
-            throw new NotImplementedException();
+            Database db = this.GetDatabase(dbName);
+
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            Directory.Delete(this.GetDatabasePath(db.Name), true);
         }
 
         public void DropTable(string dbName, string tableName)
@@ -89,11 +96,6 @@
         }
 
         public Table GetTable(string dbName, string tableName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateTable(string dbName, Table table)
         {
             throw new NotImplementedException();
         }

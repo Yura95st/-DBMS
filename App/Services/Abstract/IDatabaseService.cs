@@ -15,7 +15,5 @@
         Database GetDatabase(string dbName);
 
         Table GetTable(string dbName, string tableName);
-
-        void UpdateTable(string dbName, Table table);
     }
 }
