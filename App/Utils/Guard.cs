@@ -17,7 +17,24 @@
         {
             if (argumentValue == null)
             {
-                throw new ArgumentNullException(argumentName, String.Format("Argument '{0}' must not be null.", argumentName));
+                throw new ArgumentNullException(argumentName, $"Argument '{argumentName}' must not be null.");
+            }
+        }
+
+        /// <summary>
+        ///     Throws an exception if the tested string argument is null or an empty string.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">The string value is null.</exception>
+        /// <exception cref="ArgumentException">The string is empty.</exception>
+        /// <param name="argumentValue">The argument value to test.</param>
+        /// <param name="argumentName">The name of the argument to test.</param>
+        public static void NotNullOrEmpty(string argumentValue, string argumentName)
+        {
+            Guard.NotNull(argumentValue, argumentName);
+
+            if (argumentValue.Length == 0)
+            {
+                throw new ArgumentException($"Argument '{argumentName}' must not be empty.", argumentName);
             }
         }
     }
