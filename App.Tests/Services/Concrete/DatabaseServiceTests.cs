@@ -30,6 +30,105 @@
         private Table _testTable;
 
         [Test]
+        public void AddRow_ArgumentsAreNullOrEmpty_ThrowsArgumentExceptions()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            Row row = new Row();
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => target.AddRow(null, tableName, row));
+            Assert.Throws<ArgumentNullException>(() => target.AddRow(dbName, null, row));
+            Assert.Throws<ArgumentNullException>(() => target.AddRow(dbName, tableName, null));
+
+            Assert.Throws<ArgumentException>(() => target.AddRow("", tableName, row));
+            Assert.Throws<ArgumentException>(() => target.AddRow(dbName, "", row));
+        }
+
+        [Test]
+        public void AddRow_NonexistentDatabaseName_ThrowsDatabaseNotFoundException()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            Row row = new Row();
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<DatabaseNotFoundException>(() => target.AddRow(dbName, tableName, row));
+        }
+
+        [Test]
+        public void AddRow_NonexistentTableName_ThrowsTableNotFoundException()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            string tableName = "testTable";
+            Row row = new Row();
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<TableNotFoundException>(() => target.AddRow(dbName, tableName, row));
+        }
+
+        [Test]
+        public void AddRow_RowIsInvalid_ThrowsIvalidRowException()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            string tableName = this._testTable.Name;
+            Row row = new Row();
+
+            Exception innerException = new Exception();
+
+            // Arrange - mock dbValidation
+            this._dbValidationMock.Setup(v => v.CheckRow(It.Is<Table>(t => t.Name == tableName), row))
+                .Throws(innerException);
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            InvalidRowException exeption = Assert.Throws<InvalidRowException>(() => target.AddRow(dbName, tableName, row));
+            Assert.AreSame(exeption.InnerException, innerException);
+
+            // Table was not changed.
+            Assert.AreEqual(target.GetTable(dbName, tableName), this._testTable);
+
+            this._dbValidationMock.Verify(v => v.CheckRow(It.Is<Table>(t => t.Name == tableName), row), Times.Once);
+        }
+
+        [Test]
+        public void AddRow_RowIsValid_AddsNewRowAndUpdatesTableNextRowIdCounter()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            Table table = this._testTable;
+            Row row = new Row { Value = { "valueOne", "valueTwo" } };
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            target.AddRow(dbName, table.Name, row);
+
+            // Assert
+            row.Id = table.NextRowId;
+            Table updatedTable = target.GetTable(dbName, table.Name);
+
+            Assert.AreEqual(updatedTable.Rows[row.Id], row);
+            Assert.AreEqual(updatedTable.NextRowId, this._testTable.NextRowId + 1);
+        }
+
+        [Test]
         public void CreateDatabase_DatabaseNameIsInvalid_ThrowsInvalidNameFormatException()
         {
             // Arrange
@@ -77,8 +176,6 @@
 
             // Assert
             Assert.IsTrue(Directory.Exists(dbPath));
-
-            this._dbValidationMock.Verify(v => v.IsValidDatabaseName(dbName), Times.Once);
         }
 
         [Test]
@@ -171,8 +268,6 @@
             // Assert
             string tableJson = File.ReadAllText(tablePath);
             Assert.AreEqual(JsonConvert.DeserializeObject<Table>(tableJson), table);
-
-            this._dbValidationMock.Verify(v => v.CheckTable(table), Times.Once);
         }
 
         [Test]

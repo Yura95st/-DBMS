@@ -8,7 +8,7 @@
         public Table()
         {
             this.Attributes = new List<Attribute>();
-            this.Rows = Enumerable.Empty<Row>();
+            this.Rows = new Dictionary<int, Row>();
         }
 
         public IList<Attribute> Attributes
@@ -29,7 +29,7 @@
             set;
         }
 
-        public IEnumerable<Row> Rows
+        public IDictionary<int, Row> Rows
         {
             get;
             set;

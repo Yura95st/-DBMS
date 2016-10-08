@@ -1,12 +1,13 @@
 ﻿namespace App.Models
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     public class Row
     {
         public Row()
         {
-            this.Value = new Dictionary<Attribute, string>();
+            this.Value = new List<string>();
         }
 
         public int Id
@@ -15,7 +16,7 @@
             set;
         }
 
-        public IDictionary<Attribute, string> Value
+        public IList<string> Value
         {
             get;
             set;
@@ -48,7 +49,7 @@
 
         protected bool Equals(Row other)
         {
-            return this.Id == other.Id && object.Equals(this.Value, other.Value);
+            return this.Id == other.Id && this.Value.SequenceEqual(other.Value);
         }
     }
 }

@@ -30,6 +30,49 @@
 
         #region IDatabaseService Members
 
+        public void AddRow(string dbName, string tableName, Row row)
+        {
+            Guard.NotNullOrEmpty(dbName, "dbName");
+            Guard.NotNullOrEmpty(tableName, "tableName");
+            Guard.NotNull(row, "row");
+
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            Table table = this.GetTable(dbName, tableName);
+            if (table == null)
+            {
+                throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
+            }
+
+            try
+            {
+                this._databaseValidation.CheckRow(table, row);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidRowException("Row is invalid. See inner exception for details.", ex);
+            }
+
+            row.Id = table.NextRowId;
+            table.Rows.Add(row.Id, row);
+
+            table.NextRowId++;
+
+            string tablePath = this.GetTablePath(dbName, table.Name);
+            DatabaseService.WriteTableToFile(table, tablePath);
+        }
+
+        private static void WriteTableToFile(Table table, string filePath)
+        {
+            string tableJson = JsonConvert.SerializeObject(table);
+
+            File.WriteAllText(filePath, tableJson);
+        }
+
         public void CreateDatabase(string dbName)
         {
             Guard.NotNullOrEmpty(dbName, "dbName");
@@ -77,9 +120,12 @@
             Directory.CreateDirectory(tablesDirectoryPath);
 
             string tablePath = this.GetTablePath(dbName, table.Name);
-            string tableJson = JsonConvert.SerializeObject(table);
+            DatabaseService.WriteTableToFile(table, tablePath);
+        }
 
-            File.WriteAllText(tablePath, tableJson);
+        public void DeleteRow(string dbName, string tableName, int rowId)
+        {
+            throw new NotImplementedException();
         }
 
         public void DropDatabase(string dbName)
@@ -171,6 +217,11 @@
             {
                 return null;
             }
+        }
+
+        public void UpdateRow(string dbName, string tableName, Row row)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

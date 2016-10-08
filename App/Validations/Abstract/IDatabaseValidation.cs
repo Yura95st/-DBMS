@@ -6,6 +6,8 @@
     {
         void CheckAttribute(Attribute attribute);
 
+        void CheckRow(Table table, Row row);
+
         void CheckTable(Table table);
 
         bool IsValidDatabaseName(string dbName);

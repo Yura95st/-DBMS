@@ -4,9 +4,13 @@
 
     public interface IDatabaseService
     {
-        void CreateTable(string dbName, Table table);
+        void AddRow(string dbName, string tableName, Row row);
 
         void CreateDatabase(string dbName);
+
+        void CreateTable(string dbName, Table table);
+
+        void DeleteRow(string dbName, string tableName, int rowId);
 
         void DropDatabase(string dbName);
 
@@ -15,5 +19,7 @@
         Database GetDatabase(string dbName);
 
         Table GetTable(string dbName, string tableName);
+
+        void UpdateRow(string dbName, string tableName, Row row);
     }
 }
