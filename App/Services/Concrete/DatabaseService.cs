@@ -32,7 +32,7 @@
 
         public void CreateDatabase(string dbName)
         {
-            Guard.NotNull(dbName, "dbName");
+            Guard.NotNullOrEmpty(dbName, "dbName");
 
             if (!this._databaseValidation.IsValidDatabaseName(dbName))
             {
@@ -49,6 +49,9 @@
 
         public void CreateTable(string dbName, Table table)
         {
+            Guard.NotNullOrEmpty(dbName, "dbName");
+            Guard.NotNull(table, "table");
+
             Database db = this.GetDatabase(dbName);
             if (db == null)
             {
@@ -81,6 +84,8 @@
 
         public void DropDatabase(string dbName)
         {
+            Guard.NotNullOrEmpty(dbName, "dbName");
+
             Database db = this.GetDatabase(dbName);
             if (db == null)
             {
@@ -92,12 +97,27 @@
 
         public void DropTable(string dbName, string tableName)
         {
-            throw new NotImplementedException();
+            Guard.NotNullOrEmpty(dbName, "dbName");
+            Guard.NotNullOrEmpty(tableName, "tableName");
+
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            if (!db.TableNames.Contains(tableName))
+            {
+                throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
+            }
+
+            string tablePath = this.GetTablePath(dbName, tableName);
+            File.Delete(tablePath);
         }
 
         public Database GetDatabase(string dbName)
         {
-            Guard.NotNull(dbName, "dbName");
+            Guard.NotNullOrEmpty(dbName, "dbName");
 
             string dbPath = this.GetDatabasePath(dbName);
             if (!Directory.Exists(dbPath))
@@ -124,7 +144,33 @@
 
         public Table GetTable(string dbName, string tableName)
         {
-            throw new NotImplementedException();
+            Guard.NotNullOrEmpty(dbName, "dbName");
+            Guard.NotNullOrEmpty(tableName, "tableName");
+
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            if (!db.TableNames.Contains(tableName))
+            {
+                return null;
+            }
+
+            string tablePath = this.GetTablePath(dbName, tableName);
+            string tableJson = File.ReadAllText(tablePath);
+
+            try
+            {
+                Table table = JsonConvert.DeserializeObject<Table>(tableJson);
+
+                return table;
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
         }
 
         #endregion

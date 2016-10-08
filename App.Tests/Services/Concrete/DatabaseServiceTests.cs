@@ -25,6 +25,10 @@
 
         private Mock<IDatabaseValidation> _dbValidationMock;
 
+        private Database _testDb;
+
+        private Table _testTable;
+
         [Test]
         public void CreateDatabase_DatabaseNameIsInvalid_ThrowsInvalidNameFormatException()
         {
@@ -48,13 +52,14 @@
         }
 
         [Test]
-        public void CreateDatabase_DatabaseNameIsNull_ThrowsArgumentNullException()
+        public void CreateDatabase_DatabaseNameIsNullOrEmpty_ThrowsArgumentExceptions()
         {
             // Arrange
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
             Assert.Throws<ArgumentNullException>(() => target.CreateDatabase(null));
+            Assert.Throws<ArgumentException>(() => target.CreateDatabase(""));
         }
 
         [Test]
@@ -79,20 +84,28 @@
         [Test]
         public void CreateDatabase_DatabaseWithSuchNameAlreadyExists_ThrowsDatabaseAlreadyExistsException()
         {
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<DatabaseAlreadyExistsException>(() => target.CreateDatabase(this._testDb.Name));
+        }
+
+        [Test]
+        public void CreateTable_ArgumentsAreNullOrEmpty_ThrowsArgumentExceptions()
+        {
             // Arrange
             string dbName = "testDatabase";
-
-            // Arrange - mock dbValidation
-            this._dbValidationMock.Setup(v => v.IsValidDatabaseName(dbName))
-                .Returns(true);
+            Table table = new Table();
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
-            target.CreateDatabase(dbName);
-
             // Act and Assert
-            Assert.Throws<DatabaseAlreadyExistsException>(() => target.CreateDatabase(dbName));
+            Assert.Throws<ArgumentNullException>(() => target.CreateTable(null, table));
+            Assert.Throws<ArgumentNullException>(() => target.CreateTable(dbName, null));
+
+            Assert.Throws<ArgumentException>(() => target.CreateTable("", table));
         }
 
         [Test]
@@ -112,7 +125,7 @@
         public void CreateTable_TableIsInvalid_ThrowsInvalidTableException()
         {
             // Arrange
-            string dbName = "testDatabase";
+            string dbName = this._testDb.Name;
             Table table = new Table { Name = "testTable" };
 
             string tablePath = Path.Combine(this._dbServiceSettings.StoragePath, dbName,
@@ -128,8 +141,6 @@
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
-            target.CreateDatabase(dbName);
-
             // Act and Assert
             InvalidTableException exeption = Assert.Throws<InvalidTableException>(() => target.CreateTable(dbName, table));
             Assert.AreSame(exeption.InnerException, innerException);
@@ -143,7 +154,7 @@
         public void CreateTable_TableIsValid_CreatesNewTable()
         {
             // Arrange
-            string dbName = "testDatabase";
+            string dbName = this._testDb.Name;
             Table table = new Table
                 { Name = "testTable", Attributes = { new Models.Attribute { Name = "firstAttribute", Type = "someType" } } };
 
@@ -153,8 +164,6 @@
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
-
-            target.CreateDatabase(dbName);
 
             // Act
             target.CreateTable(dbName, table);
@@ -170,14 +179,11 @@
         public void CreateTable_TableWithSuchNameAlreadyExists_ThrowsTableAlreadyExistsException()
         {
             // Arrange
-            string dbName = "testDatabase";
-            Table table = new Table { Name = "testTable" };
+            string dbName = this._testDb.Name;
+            Table table = new Table { Name = this._testTable.Name };
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
-
-            target.CreateDatabase(dbName);
-            target.CreateTable(dbName, table);
 
             // Act and Assert
             Assert.Throws<TableAlreadyExistsException>(() => target.CreateTable(dbName, table));
@@ -190,25 +196,24 @@
         }
 
         [Test]
-        public void DropDatabase_DatabaseNameIsNull_ThrowsArgumentNullException()
+        public void DropDatabase_DatabaseNameIsNullOrEmpty_ThrowsArgumentExceptions()
         {
             // Arrange
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
             Assert.Throws<ArgumentNullException>(() => target.DropDatabase(null));
+            Assert.Throws<ArgumentException>(() => target.DropDatabase(""));
         }
 
         [Test]
         public void DropDatabase_DatabaseNameIsValid_DropsDatabase()
         {
             // Arrange
-            string dbName = "testDatabase";
+            string dbName = this._testDb.Name;
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
-
-            target.CreateDatabase(dbName);
 
             // Act
             target.DropDatabase(dbName);
@@ -231,36 +236,90 @@
         }
 
         [Test]
-        public void GetDatabase_DatabaseNameIsNull_ThrowsArgumentNullException()
+        public void DropTable_ArgumentsAreNullOrEmpty_ThrowsArgumentExceptions()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "tableName";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => target.DropTable(null, tableName));
+            Assert.Throws<ArgumentNullException>(() => target.DropTable(dbName, null));
+
+            Assert.Throws<ArgumentException>(() => target.DropTable("", tableName));
+            Assert.Throws<ArgumentException>(() => target.DropTable(dbName, ""));
+        }
+
+        [Test]
+        public void DropTable_ArgumentsAreValid_DropsTable()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            Table table = new Table { Name = this._testTable.Name };
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            target.DropTable(dbName, table.Name);
+
+            // Assert
+            Assert.IsNull(target.GetTable(dbName, table.Name));
+        }
+
+        [Test]
+        public void DropTable_NonexistentDatabaseName_ThrowsDatabaseNotFoundException()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<DatabaseNotFoundException>(() => target.DropTable(dbName, tableName));
+        }
+
+        [Test]
+        public void DropTable_NonexistentTableName_ThrowsTableNotFoundException()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            string tableName = "testTable";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<TableNotFoundException>(() => target.DropTable(dbName, tableName));
+        }
+
+        [Test]
+        public void GetDatabase_DatabaseNameIsNullOrEmpty_ThrowsArgumentExceptions()
         {
             // Arrange
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
             Assert.Throws<ArgumentNullException>(() => target.GetDatabase(null));
+            Assert.Throws<ArgumentException>(() => target.GetDatabase(""));
         }
 
         [Test]
         public void GetDatabase_DatabaseNameIsValid_ReturnsDatabase()
         {
-            // Arrange
-            Database testDb = new Database { Name = "testDatabase", TableNames = new[] { "firstTable", "secondTable" } };
-
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
-            target.CreateDatabase(testDb.Name);
-
-            foreach (string tableName in testDb.TableNames)
-            {
-                target.CreateTable(testDb.Name, new Table { Name = tableName });
-            }
-
             // Act
-            Database db = target.GetDatabase(testDb.Name);
+            Database db = target.GetDatabase(this._testDb.Name);
 
             // Assert
-            Assert.AreEqual(db, testDb);
+            Assert.AreEqual(db, this._testDb);
         }
 
         [Test]
@@ -279,10 +338,72 @@
             Assert.IsNull(db);
         }
 
+        [Test]
+        public void GetTable_ArgumentsAreNullOrEmpty_ThrowsArgumentExceptions()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "tableName";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => target.GetTable(null, tableName));
+            Assert.Throws<ArgumentNullException>(() => target.GetTable(dbName, null));
+
+            Assert.Throws<ArgumentException>(() => target.GetTable("", tableName));
+            Assert.Throws<ArgumentException>(() => target.GetTable(dbName, ""));
+        }
+
+        [Test]
+        public void GetTable_ArgumetnsAreValid_ReturnsTable()
+        {
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            Table table = target.GetTable(this._testDb.Name, this._testTable.Name);
+
+            // Assert
+            Assert.AreEqual(table, this._testTable);
+        }
+
+        [Test]
+        public void GetTable_NonexistentDatabaseName_ThrowsDatabaseNotFoundException()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<DatabaseNotFoundException>(() => target.GetTable(dbName, tableName));
+        }
+
+        [Test]
+        public void GetTable_NonexistentTableName_ReturnsNull()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            string tableName = "testTable";
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            Table table = target.GetTable(dbName, tableName);
+
+            // Assert
+            Assert.IsNull(table);
+        }
+
         [SetUp]
         public void Init()
         {
-            this.MockNameValidation();
+            this.MockValidation();
 
             this._dbServiceSettings = new DatabaseServiceSettings
             {
@@ -290,10 +411,30 @@
                 TablesDirectoryName = "tables"
             };
 
-            Directory.CreateDirectory(this._dbServiceSettings.StoragePath);
+            this.InitDatabase();
         }
 
-        private void MockNameValidation()
+        private void InitDatabase()
+        {
+            this._testTable = new Table
+                { Name = "someTable", Attributes = { new Models.Attribute { Name = "firstAttribute", Type = "someType" } } };
+
+            this._testDb = new Database { Name = "someDatabase", TableNames = new[] { this._testTable.Name } };
+
+            Directory.CreateDirectory(this._dbServiceSettings.StoragePath);
+
+            string dbPath = Path.Combine(this._dbServiceSettings.StoragePath, this._testDb.Name);
+            Directory.CreateDirectory(dbPath);
+
+            string tablesFolderPath = Path.Combine(dbPath, this._dbServiceSettings.TablesDirectoryName);
+            Directory.CreateDirectory(tablesFolderPath);
+
+            string tablePath = Path.Combine(tablesFolderPath,
+                string.Format(this._dbServiceSettings.TableFileNameFormat, this._testTable.Name));
+            File.WriteAllText(tablePath, JsonConvert.SerializeObject(this._testTable));
+        }
+
+        private void MockValidation()
         {
             this._dbValidationMock = new Mock<IDatabaseValidation>();
 
