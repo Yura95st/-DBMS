@@ -1,7 +1,9 @@
 ﻿namespace App.Tests.Services.Concrete
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Text.RegularExpressions;
 
     using App.Exceptions;
     using App.Models;
@@ -19,7 +21,7 @@
     public class DatabaseServiceTests
     {
         private readonly string _tempDirectory =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"DBMS_unit_tests_temp_folder");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DBMS_unit_tests_temp_folder/");
 
         private DatabaseServiceSettings _dbServiceSettings;
 
@@ -498,13 +500,12 @@
         [SetUp]
         public void Init()
         {
-            this.MockValidation();
+            this._dbServiceSettings =
+                new DatabaseServiceSettings(storagePath: Path.Combine(this._tempDirectory, "databases/"),
+                    tableFileNameFormat: "{0}.json", tablesDirectoryName: "tables",
+                    dataTypes: new Dictionary<string, Regex>());
 
-            this._dbServiceSettings = new DatabaseServiceSettings
-            {
-                StoragePath = Path.Combine(this._tempDirectory, @"databases\"), TableFileNameFormat = "{0}.json",
-                TablesDirectoryName = "tables"
-            };
+            this.MockValidation();
 
             this.InitDatabase();
         }

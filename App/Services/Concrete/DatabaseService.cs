@@ -239,7 +239,7 @@
 
         private string GetTablesDirectoryPath(string dbName)
         {
-            return Path.Combine(this.GetDatabasePath(dbName), $@"{this._settings.TablesDirectoryName}\");
+            return Path.Combine(this.GetDatabasePath(dbName), $"{this._settings.TablesDirectoryName}/");
         }
     }
 }

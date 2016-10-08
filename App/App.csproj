@@ -142,6 +142,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\" />
+    <Folder Include="Models\Settings\" />
     <Folder Include="Validations\Concrete\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
