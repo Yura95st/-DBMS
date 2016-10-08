@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     using App.Exceptions;
     using App.Models;
@@ -10,21 +11,21 @@
     using App.Utils;
     using App.Validations.Abstract;
 
+    using Newtonsoft.Json;
+
     public class DatabaseService : IDatabaseService
     {
-        public static readonly string TablesDirectoryName = "tables";
-
-        private readonly INameValidation _nameValidation;
+        private readonly IDatabaseValidation _databaseValidation;
 
         private readonly DatabaseServiceSettings _settings;
 
-        public DatabaseService(DatabaseServiceSettings settings, INameValidation nameValidation)
+        public DatabaseService(DatabaseServiceSettings settings, IDatabaseValidation databaseValidation)
         {
             Guard.NotNull(settings, "settings");
-            Guard.NotNull(nameValidation, "nameValidation");
+            Guard.NotNull(databaseValidation, "databaseValidation");
 
             this._settings = settings;
-            this._nameValidation = nameValidation;
+            this._databaseValidation = databaseValidation;
         }
 
         #region IDatabaseService Members
@@ -33,7 +34,7 @@
         {
             Guard.NotNull(dbName, "dbName");
 
-            if (!this._nameValidation.IsValidDatabaseName(dbName))
+            if (!this._databaseValidation.IsValidDatabaseName(dbName))
             {
                 throw new InvalidNameFormatException($"Database name \"{dbName}\" has invalid format.");
             }
@@ -48,13 +49,39 @@
 
         public void CreateTable(string dbName, Table table)
         {
-            throw new NotImplementedException();
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            try
+            {
+                this._databaseValidation.CheckTable(table);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidTableException("Table is invalid. See inner exception for details.", ex);
+            }
+
+            if (db.TableNames.Contains(table.Name))
+            {
+                throw new TableAlreadyExistsException(
+                    $"Table with name \"{table.Name}\" already exists in database \"{dbName}\".");
+            }
+
+            string tablesDirectoryPath = this.GetTablesDirectoryPath(dbName);
+            Directory.CreateDirectory(tablesDirectoryPath);
+
+            string tablePath = this.GetTablePath(dbName, table.Name);
+            string tableJson = JsonConvert.SerializeObject(table);
+
+            File.WriteAllText(tablePath, tableJson);
         }
 
         public void DropDatabase(string dbName)
         {
             Database db = this.GetDatabase(dbName);
-
             if (db == null)
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
@@ -80,7 +107,7 @@
 
             Database db = new Database { Name = dbName };
 
-            string tablesPath = this.GetTablesDirectoryPath(dbPath);
+            string tablesPath = this.GetTablesDirectoryPath(dbName);
             if (Directory.Exists(tablesPath))
             {
                 List<string> tableNames = new List<string>();
@@ -107,9 +134,15 @@
             return Path.Combine(this._settings.StoragePath, dbName);
         }
 
-        private string GetTablesDirectoryPath(string dbPath)
+        private string GetTablePath(string dbName, string tableName)
         {
-            return Path.Combine(dbPath, $@"{DatabaseService.TablesDirectoryName}\");
+            return Path.Combine(this.GetTablesDirectoryPath(dbName),
+                string.Format(this._settings.TableFileNameFormat, tableName));
+        }
+
+        private string GetTablesDirectoryPath(string dbName)
+        {
+            return Path.Combine(this.GetDatabasePath(dbName), $@"{this._settings.TablesDirectoryName}\");
         }
     }
 }

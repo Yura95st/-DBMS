@@ -108,9 +108,10 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Enums\DataType.cs" />
+    <Compile Include="Exceptions\TableAlreadyExistsException.cs" />
     <Compile Include="Exceptions\DatabaseNotFoundException.cs" />
     <Compile Include="Exceptions\DatabaseAlreadyExistsException.cs" />
+    <Compile Include="Exceptions\InvalidTableException.cs" />
     <Compile Include="Exceptions\InvalidNameFormatException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -124,7 +125,7 @@
     <Compile Include="Services\Abstract\IDatabaseService.cs" />
     <Compile Include="Services\Concrete\DatabaseService.cs" />
     <Compile Include="Utils\Guard.cs" />
-    <Compile Include="Validations\Abstract\INameValidation.cs" />
+    <Compile Include="Validations\Abstract\IDatabaseValidation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
