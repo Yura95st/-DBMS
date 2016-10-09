@@ -62,15 +62,7 @@
 
             table.NextRowId++;
 
-            string tablePath = this.GetTablePath(dbName, table.Name);
-            DatabaseService.WriteTableToFile(table, tablePath);
-        }
-
-        private static void WriteTableToFile(Table table, string filePath)
-        {
-            string tableJson = JsonConvert.SerializeObject(table);
-
-            File.WriteAllText(filePath, tableJson);
+            this.WriteTableToFile(table, dbName);
         }
 
         public void CreateDatabase(string dbName)
@@ -119,13 +111,35 @@
             string tablesDirectoryPath = this.GetTablesDirectoryPath(dbName);
             Directory.CreateDirectory(tablesDirectoryPath);
 
-            string tablePath = this.GetTablePath(dbName, table.Name);
-            DatabaseService.WriteTableToFile(table, tablePath);
+            this.WriteTableToFile(table, dbName);
         }
 
         public void DeleteRow(string dbName, string tableName, int rowId)
         {
-            throw new NotImplementedException();
+            Guard.NotNullOrEmpty(dbName, "dbName");
+            Guard.NotNullOrEmpty(tableName, "tableName");
+            Guard.IntMoreOrEqualToZero(rowId, "rowId");
+
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            Table table = this.GetTable(dbName, tableName);
+            if (table == null)
+            {
+                throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
+            }
+
+            if (!table.Rows.ContainsKey(rowId))
+            {
+                throw new RowNotFoundException($"Row with id \"{rowId}\" does not exist in table \"{tableName}\".");
+            }
+
+            table.Rows.Remove(rowId);
+
+            this.WriteTableToFile(table, dbName);
         }
 
         public void DropDatabase(string dbName)
@@ -221,7 +235,39 @@
 
         public void UpdateRow(string dbName, string tableName, Row row)
         {
-            throw new NotImplementedException();
+            Guard.NotNullOrEmpty(dbName, "dbName");
+            Guard.NotNullOrEmpty(tableName, "tableName");
+            Guard.NotNull(row, "row");
+
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            Table table = this.GetTable(dbName, tableName);
+            if (table == null)
+            {
+                throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
+            }
+
+            if (!table.Rows.ContainsKey(row.Id))
+            {
+                throw new RowNotFoundException($"Row with id \"{row.Id}\" does not exist in table \"{tableName}\".");
+            }
+
+            try
+            {
+                this._databaseValidation.CheckRow(table, row);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidRowException("Row is invalid. See inner exception for details.", ex);
+            }
+
+            table.Rows[row.Id] = row;
+
+            this.WriteTableToFile(table, dbName);
         }
 
         #endregion
@@ -240,6 +286,14 @@
         private string GetTablesDirectoryPath(string dbName)
         {
             return Path.Combine(this.GetDatabasePath(dbName), $"{this._settings.TablesDirectoryName}/");
+        }
+
+        private void WriteTableToFile(Table table, string dbName)
+        {
+            string tablePath = this.GetTablePath(dbName, table.Name);
+            string tableJson = JsonConvert.SerializeObject(table);
+
+            File.WriteAllText(tablePath, tableJson);
         }
     }
 }

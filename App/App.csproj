@@ -109,6 +109,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Exceptions\InvalidRowException.cs" />
+    <Compile Include="Exceptions\RowNotFoundException.cs" />
     <Compile Include="Exceptions\TableNotFoundException.cs" />
     <Compile Include="Exceptions\TableAlreadyExistsException.cs" />
     <Compile Include="Exceptions\DatabaseNotFoundException.cs" />
