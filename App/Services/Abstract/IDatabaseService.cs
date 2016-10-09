@@ -1,5 +1,7 @@
 ﻿namespace App.Services.Abstract
 {
+    using System.Collections.Generic;
+
     using App.Models;
 
     public interface IDatabaseService
@@ -17,6 +19,8 @@
         void DropTable(string dbName, string tableName);
 
         Database GetDatabase(string dbName);
+
+        IEnumerable<string> GetDatabaseNames();
 
         Table GetTable(string dbName, string tableName);
 

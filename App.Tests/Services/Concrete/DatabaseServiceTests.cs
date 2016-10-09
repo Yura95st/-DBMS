@@ -526,6 +526,22 @@
         }
 
         [Test]
+        public void GetDatabaseNames_ReturnsListOfDatabaseNames()
+        {
+            // Arrange
+            string[] testDbNames = { this._testDb.Name };
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            IEnumerable<string> dbNames = target.GetDatabaseNames();
+
+            // Assert
+            Assert.IsTrue(dbNames.SequenceEqual(testDbNames));
+        }
+
+        [Test]
         public void GetTable_ArgumentsAreNullOrEmpty_ThrowsArgumentExceptions()
         {
             // Arrange

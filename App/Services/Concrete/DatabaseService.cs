@@ -36,8 +36,8 @@
             Guard.NotNullOrEmpty(tableName, "tableName");
             Guard.NotNull(row, "row");
 
-            Database db = this.GetDatabase(dbName);
-            if (db == null)
+            IEnumerable<string> dbNames = this.GetDatabaseNames();
+            if (!dbNames.Contains(dbName))
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
@@ -74,7 +74,8 @@
                 throw new InvalidNameFormatException($"Database name \"{dbName}\" has invalid format.");
             }
 
-            if (this.GetDatabase(dbName) != null)
+            IEnumerable<string> dbNames = this.GetDatabaseNames();
+            if (dbNames.Contains(dbName))
             {
                 throw new DatabaseAlreadyExistsException($"Database with name \"{dbName}\" already exists.");
             }
@@ -120,8 +121,8 @@
             Guard.NotNullOrEmpty(tableName, "tableName");
             Guard.IntMoreOrEqualToZero(rowId, "rowId");
 
-            Database db = this.GetDatabase(dbName);
-            if (db == null)
+            IEnumerable<string> dbNames = this.GetDatabaseNames();
+            if (!dbNames.Contains(dbName))
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
@@ -146,13 +147,13 @@
         {
             Guard.NotNullOrEmpty(dbName, "dbName");
 
-            Database db = this.GetDatabase(dbName);
-            if (db == null)
+            IEnumerable<string> dbNames = this.GetDatabaseNames();
+            if (!dbNames.Contains(dbName))
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
 
-            Directory.Delete(this.GetDatabasePath(db.Name), true);
+            Directory.Delete(this.GetDatabasePath(dbName), true);
         }
 
         public void DropTable(string dbName, string tableName)
@@ -202,6 +203,17 @@
             return db;
         }
 
+        public IEnumerable<string> GetDatabaseNames()
+        {
+            if (Directory.Exists(this._settings.StoragePath))
+            {
+                foreach (string dirName in Directory.EnumerateDirectories(this._settings.StoragePath))
+                {
+                    yield return Path.GetFileName(dirName);
+                }
+            }
+        }
+
         public Table GetTable(string dbName, string tableName)
         {
             Guard.NotNullOrEmpty(dbName, "dbName");
@@ -239,8 +251,8 @@
             Guard.NotNullOrEmpty(tableName, "tableName");
             Guard.NotNull(row, "row");
 
-            Database db = this.GetDatabase(dbName);
-            if (db == null)
+            IEnumerable<string> dbNames = this.GetDatabaseNames();
+            if (!dbNames.Contains(dbName))
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
