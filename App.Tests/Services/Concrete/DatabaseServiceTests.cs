@@ -608,8 +608,7 @@
         {
             this._dbServiceSettings =
                 new DatabaseServiceSettings(storagePath: Path.Combine(this._tempDirectory, "databases/"),
-                    tableFileNameFormat: "{0}.json", tablesDirectoryName: "tables",
-                    dataTypes: new Dictionary<string, Regex>());
+                    tableFileNameFormat: "{0}.json", tablesDirectoryName: "tables");
 
             this.MockValidation();
 

@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\Database.cs" />
+    <Compile Include="Models\DatabaseValidationSettings.cs" />
     <Compile Include="Models\DatabaseServiceSettings.cs" />
     <Compile Include="Models\Row.cs" />
     <Compile Include="Models\Table.cs" />
@@ -131,8 +132,8 @@
     <Compile Include="Validations\Abstract\IDatabaseValidation.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\web.config" />
     <Content Include="packages.config" />
+    <Content Include="Views\web.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -143,7 +144,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\" />
-    <Folder Include="Models\Settings\" />
     <Folder Include="Validations\Concrete\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
