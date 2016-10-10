@@ -10,7 +10,7 @@
 
         void CreateDatabase(string dbName);
 
-        void CreateTable(string dbName, Table table);
+        void CreateTable(string dbName, TableScheme tableScheme);
 
         void DeleteRow(string dbName, string tableName, int rowId);
 

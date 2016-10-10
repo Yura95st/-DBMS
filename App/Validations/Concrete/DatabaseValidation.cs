@@ -41,7 +41,7 @@
             throw new NotImplementedException();
         }
 
-        public void CheckTable(Table table)
+        public void CheckTableScheme(TableScheme tableScheme)
         {
             throw new NotImplementedException();
         }

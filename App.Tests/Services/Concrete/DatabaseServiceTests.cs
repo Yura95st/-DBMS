@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text.RegularExpressions;
 
     using App.Exceptions;
     using App.Models;
@@ -196,16 +195,44 @@
         {
             // Arrange
             string dbName = "testDatabase";
-            Table table = new Table();
+            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
-            Assert.Throws<ArgumentNullException>(() => target.CreateTable(null, table));
+            Assert.Throws<ArgumentNullException>(() => target.CreateTable(null, tableScheme));
             Assert.Throws<ArgumentNullException>(() => target.CreateTable(dbName, null));
 
-            Assert.Throws<ArgumentException>(() => target.CreateTable("", table));
+            Assert.Throws<ArgumentException>(() => target.CreateTable("", tableScheme));
+        }
+
+        [Test]
+        public void CreateTable_ArgumentsAreValid_CreatesNewTable()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            TableScheme tableScheme = new TableScheme("testTable",
+                new List<Models.Attribute> { new Models.Attribute { Name = "firstAttribute", Type = "someType" } });
+
+            string tablePath = Path.Combine(this._dbServiceSettings.StoragePath, dbName,
+                this._dbServiceSettings.TablesDirectoryName,
+                string.Format(this._dbServiceSettings.TableFileNameFormat, tableScheme.Name));
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            target.CreateTable(dbName, tableScheme);
+
+            // Assert
+            Database db = target.GetDatabase(dbName);
+            Assert.IsTrue(db.TableNames.Contains(tableScheme.Name));
+
+            Table table = new Table { Name = tableScheme.Name, Attributes = tableScheme.Attributes };
+            string tableJson = File.ReadAllText(tablePath);
+
+            Assert.AreEqual(JsonConvert.DeserializeObject<Table>(tableJson), table);
         }
 
         [Test]
@@ -213,67 +240,43 @@
         {
             // Arrange
             string dbName = "testDatabase";
+            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
-            Assert.Throws<DatabaseNotFoundException>(() => target.CreateTable(dbName, new Table()));
+            Assert.Throws<DatabaseNotFoundException>(() => target.CreateTable(dbName, tableScheme));
         }
 
         [Test]
-        public void CreateTable_TableIsInvalid_ThrowsInvalidTableException()
+        public void CreateTable_TableSchemeIsInvalid_ThrowsInvalidTableSchemeException()
         {
             // Arrange
             string dbName = this._testDb.Name;
-            Table table = new Table { Name = "testTable" };
+            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
 
             string tablePath = Path.Combine(this._dbServiceSettings.StoragePath, dbName,
                 this._dbServiceSettings.TablesDirectoryName,
-                string.Format(this._dbServiceSettings.TableFileNameFormat, table.Name));
+                string.Format(this._dbServiceSettings.TableFileNameFormat, tableScheme.Name));
 
             Exception innerException = new Exception();
 
             // Arrange - mock dbValidation
-            this._dbValidationMock.Setup(v => v.CheckTable(table))
+            this._dbValidationMock.Setup(v => v.CheckTableScheme(tableScheme))
                 .Throws(innerException);
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
-            InvalidTableException exeption = Assert.Throws<InvalidTableException>(() => target.CreateTable(dbName, table));
+            InvalidTableSchemeException exeption =
+                Assert.Throws<InvalidTableSchemeException>(() => target.CreateTable(dbName, tableScheme));
             Assert.AreSame(exeption.InnerException, innerException);
 
             Assert.IsFalse(File.Exists(tablePath));
 
-            this._dbValidationMock.Verify(v => v.CheckTable(table), Times.Once);
-        }
-
-        [Test]
-        public void CreateTable_TableIsValid_CreatesNewTable()
-        {
-            // Arrange
-            string dbName = this._testDb.Name;
-            Table table = new Table
-                { Name = "testTable", Attributes = { new Models.Attribute { Name = "firstAttribute", Type = "someType" } } };
-
-            string tablePath = Path.Combine(this._dbServiceSettings.StoragePath, dbName,
-                this._dbServiceSettings.TablesDirectoryName,
-                string.Format(this._dbServiceSettings.TableFileNameFormat, table.Name));
-
-            // Arrange - create target
-            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
-
-            // Act
-            target.CreateTable(dbName, table);
-
-            // Assert
-            Database db = target.GetDatabase(dbName);
-            Assert.IsTrue(db.TableNames.Contains(table.Name));
-
-            string tableJson = File.ReadAllText(tablePath);
-            Assert.AreEqual(JsonConvert.DeserializeObject<Table>(tableJson), table);
+            this._dbValidationMock.Verify(v => v.CheckTableScheme(tableScheme), Times.Once);
         }
 
         [Test]
@@ -281,13 +284,13 @@
         {
             // Arrange
             string dbName = this._testDb.Name;
-            Table table = new Table { Name = this._testTable.Name };
+            TableScheme tableScheme = new TableScheme(this._testTable.Name, new List<Models.Attribute>());
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
-            Assert.Throws<TableAlreadyExistsException>(() => target.CreateTable(dbName, table));
+            Assert.Throws<TableAlreadyExistsException>(() => target.CreateTable(dbName, tableScheme));
         }
 
         [Test]

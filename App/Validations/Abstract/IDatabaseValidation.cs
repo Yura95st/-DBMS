@@ -8,7 +8,7 @@
 
         void CheckRow(Table table, Row row);
 
-        void CheckTable(Table table);
+        void CheckTableScheme(TableScheme tableScheme);
 
         bool IsValidDatabaseName(string dbName);
     }

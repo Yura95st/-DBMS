@@ -2,20 +2,20 @@
 {
     using System;
 
-    public class InvalidTableException : Exception
+    public class InvalidTableSchemeException : Exception
     {
         #region Constructors
 
-        public InvalidTableException()
+        public InvalidTableSchemeException()
         {
         }
 
-        public InvalidTableException(string message)
+        public InvalidTableSchemeException(string message)
             : base(message)
         {
         }
 
-        public InvalidTableException(string message, Exception inner)
+        public InvalidTableSchemeException(string message, Exception inner)
             : base(message, inner)
         {
         }

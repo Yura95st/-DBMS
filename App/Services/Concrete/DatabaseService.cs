@@ -83,10 +83,10 @@
             Directory.CreateDirectory(this.GetDatabasePath(dbName));
         }
 
-        public void CreateTable(string dbName, Table table)
+        public void CreateTable(string dbName, TableScheme tableScheme)
         {
             Guard.NotNullOrEmpty(dbName, "dbName");
-            Guard.NotNull(table, "table");
+            Guard.NotNull(tableScheme, "tableScheme");
 
             Database db = this.GetDatabase(dbName);
             if (db == null)
@@ -96,21 +96,23 @@
 
             try
             {
-                this._databaseValidation.CheckTable(table);
+                this._databaseValidation.CheckTableScheme(tableScheme);
             }
             catch (Exception ex)
             {
-                throw new InvalidTableException("Table is invalid. See inner exception for details.", ex);
+                throw new InvalidTableSchemeException("Table scheme is invalid. See inner exception for details.", ex);
             }
 
-            if (db.TableNames.Contains(table.Name))
+            if (db.TableNames.Contains(tableScheme.Name))
             {
                 throw new TableAlreadyExistsException(
-                    $"Table with name \"{table.Name}\" already exists in database \"{dbName}\".");
+                    $"Table with name \"{tableScheme.Name}\" already exists in database \"{dbName}\".");
             }
 
             string tablesDirectoryPath = this.GetTablesDirectoryPath(dbName);
             Directory.CreateDirectory(tablesDirectoryPath);
+
+            Table table = new Table { Name = tableScheme.Name, Attributes = tableScheme.Attributes.ToList() };
 
             this.WriteTableToFile(table, dbName);
         }

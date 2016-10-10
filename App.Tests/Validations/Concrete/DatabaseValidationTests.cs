@@ -86,26 +86,6 @@
             Assert.Throws<InvalidAttributeException>(() => target.CheckAttribute(attribute));
         }
 
-        [Test]
-        public void CheckTable_TableIsNull_ThrowsArgumentNullException()
-        {
-            // Arrange - create target
-            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
-
-            // Act and Assert
-            Assert.Throws<ArgumentNullException>(() => target.CheckTable(null));
-        }
-
-        [Test]
-        public void CheckTable_TableHasInvalidName_ThrowsInvalidTableException()
-        {
-            // Arrange - create target
-            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
-
-            // Act and Assert
-            Assert.Throws<ArgumentNullException>(() => target.CheckTable(null));
-        }
-
         [SetUp]
         public void Init()
         {
