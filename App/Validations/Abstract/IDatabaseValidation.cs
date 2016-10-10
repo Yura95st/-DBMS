@@ -4,8 +4,6 @@
 
     public interface IDatabaseValidation
     {
-        void CheckAttribute(Attribute attribute);
-
         void CheckRow(Table table, Row row);
 
         void CheckTableScheme(TableScheme tableScheme);

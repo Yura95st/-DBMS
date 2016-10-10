@@ -21,7 +21,46 @@
 
         #region IDatabaseValidation Members
 
-        public void CheckAttribute(Models.Attribute attribute)
+        public void CheckRow(Table table, Row row)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CheckTableScheme(TableScheme tableScheme)
+        {
+            Guard.NotNull(tableScheme, "tableScheme");
+
+            if (!DatabaseValidation.IsValidFileName(tableScheme.Name))
+            {
+                throw new InvalidTableSchemeException($"Table scheme has invalid name \"{tableScheme.Name}\".");
+            }
+
+            if (tableScheme.Attributes.Count == 0)
+            {
+                throw new InvalidTableSchemeException("Table scheme has no attributes.");
+            }
+
+            try
+            {
+                foreach (Models.Attribute attribute in tableScheme.Attributes)
+                {
+                    this.CheckAttribute(attribute);
+                }
+            }
+            catch (InvalidAttributeException ex)
+            {
+                throw new InvalidTableSchemeException("Table scheme is invalid. See inner exception for details.", ex);
+            }
+        }
+
+        public bool IsValidDatabaseName(string dbName)
+        {
+            return DatabaseValidation.IsValidFileName(dbName);
+        }
+
+        #endregion
+
+        private void CheckAttribute(Models.Attribute attribute)
         {
             Guard.NotNull(attribute, "attribute");
 
@@ -35,23 +74,6 @@
                 throw new InvalidAttributeException($"Attribute's type \"{attribute.Type}\" is unknown.");
             }
         }
-
-        public void CheckRow(Table table, Row row)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CheckTableScheme(TableScheme tableScheme)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsValidDatabaseName(string dbName)
-        {
-            return DatabaseValidation.IsValidFileName(dbName);
-        }
-
-        #endregion
 
         private static bool IsValidFileName(string fileName)
         {

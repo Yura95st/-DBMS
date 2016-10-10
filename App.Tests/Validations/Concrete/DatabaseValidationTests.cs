@@ -1,6 +1,5 @@
 ﻿namespace App.Tests.Validations.Concrete
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -18,10 +17,12 @@
         private DatabaseValidationSettings _dbValidationSettings;
 
         [Test]
-        public void CheckAttribute_AttributeHasInvalidName_ThrowsInvalidAttributeException()
+        public void CheckTableScheme_TableSchemeHasAttributeWithInvalidName_ThrowsInvalidTableSchemeException()
         {
             // Arrange
+            string tableName = "testTable";
             string[] attributeNames = { null, "", " ", new string(Path.GetInvalidFileNameChars()) };
+            string attributeType = this._dbValidationSettings.DataTypes.Keys.First();
 
             // Arrange - create target
             DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
@@ -29,61 +30,94 @@
             // Act and Assert
             foreach (string attributeName in attributeNames)
             {
-                Models.Attribute attribute = new Models.Attribute { Name = attributeName };
+                Models.Attribute attribute = new Models.Attribute { Name = attributeName, Type = attributeType };
 
-                Assert.Throws<InvalidAttributeException>(() => target.CheckAttribute(attribute));
+                TableScheme tableScheme = new TableScheme(tableName, new[] { attribute });
+
+                InvalidTableSchemeException ex =
+                    Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
+
+                Assert.NotNull(ex.InnerException);
+                Assert.AreSame(ex.InnerException.GetType(), typeof(InvalidAttributeException));
             }
         }
 
         [Test]
-        public void CheckAttribute_AttributeHasUnknownType_ThrowsInvalidAttributeException()
+        public void CheckTableScheme_TableSchemeHasAttributeWithUnknownType_ThrowsInvalidTableSchemeException()
         {
             // Arrange
-            Models.Attribute attribute = new Models.Attribute { Name = "testAttribute", Type = "testType" };
+            string tableName = "testTable";
+            string attributeName = "testAttribute";
+            string[] attributeTypes = { null, "testType" };
 
             // Arrange - create target
             DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
 
             // Act and Assert
-            Assert.Throws<InvalidAttributeException>(() => target.CheckAttribute(attribute));
+            foreach (string attributeType in attributeTypes)
+            {
+                Models.Attribute attribute = new Models.Attribute { Name = attributeName, Type = attributeType };
+
+                TableScheme tableScheme = new TableScheme(tableName, new[] { attribute });
+
+                InvalidTableSchemeException ex =
+                    Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
+
+                Assert.NotNull(ex.InnerException);
+                Assert.AreSame(ex.InnerException.GetType(), typeof(InvalidAttributeException));
+            }
         }
 
         [Test]
-        public void CheckAttribute_AttributeIsNull_ThrowsArgumentNullException()
+        public void CheckTableScheme_TableSchemeHasInvalidName_ThrowsInvalidTableSchemeException()
         {
+            // Arrange
+            string[] tableNames = { "", " ", new string(Path.GetInvalidFileNameChars()) };
+            Models.Attribute[] attributes =
+            {
+                new Models.Attribute { Name = "testAttribute", Type = this._dbValidationSettings.DataTypes.Keys.First() }
+            };
+
             // Arrange - create target
             DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
 
             // Act and Assert
-            Assert.Throws<ArgumentNullException>(() => target.CheckAttribute(null));
+            foreach (string tableName in tableNames)
+            {
+                TableScheme tableScheme = new TableScheme(tableName, attributes);
+
+                Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
+            }
         }
 
         [Test]
-        public void CheckAttribute_AttributeIsValid_DoesNotThrowAnyException()
+        public void CheckTableScheme_TableSchemeHasNoAttributes_ThrowsInvalidTableSchemeException()
         {
             // Arrange
-            Models.Attribute attribute = new Models.Attribute
-                { Name = "testAttribute", Type = this._dbValidationSettings.DataTypes.Keys.First() };
+            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
 
             // Arrange - create target
             DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
 
             // Act and Assert
-            Assert.DoesNotThrow(() => target.CheckAttribute(attribute));
+            Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
         }
 
         [Test]
-        public void CheckAttribute_AttributeTypeIsNull_ThrowsInvalidAttributeException()
+        public void CheckTableScheme_TableSchemeIsValid_DoesNotThrowAnyException()
         {
             // Arrange
-            Models.Attribute attribute = new Models.Attribute { Name = "testAttribute", Type = null };
+            TableScheme tableScheme = new TableScheme("testTable",
+                new List<Models.Attribute>
+                {
+                    new Models.Attribute { Name = "testAttribute", Type = this._dbValidationSettings.DataTypes.Keys.First() }
+                });
 
             // Arrange - create target
             DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
 
             // Act and Assert
-
-            Assert.Throws<InvalidAttributeException>(() => target.CheckAttribute(attribute));
+            Assert.DoesNotThrow(() => target.CheckTableScheme(tableScheme));
         }
 
         [SetUp]
