@@ -1,7 +1,7 @@
 ﻿namespace App.Validations.Concrete
 {
-    using System;
     using System.IO;
+    using System.Text.RegularExpressions;
 
     using App.Exceptions;
     using App.Models;
@@ -20,11 +20,6 @@
         }
 
         #region IDatabaseValidation Members
-
-        public void CheckRow(Table table, Row row)
-        {
-            throw new NotImplementedException();
-        }
 
         public void CheckTableScheme(TableScheme tableScheme)
         {
@@ -51,6 +46,29 @@
             {
                 throw new InvalidTableSchemeException("Table scheme is invalid. See inner exception for details.", ex);
             }
+        }
+
+        public bool DoesRowFitTable(Table table, Row row)
+        {
+            Guard.NotNull(table, "table");
+            Guard.NotNull(row, "row");
+
+            if (table.Attributes.Count != row.Value.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < table.Attributes.Count; i++)
+            {
+                Regex regex = this._settings.DataTypes[table.Attributes[i].Type];
+
+                if (!regex.IsMatch(row.Value[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public bool IsValidDatabaseName(string dbName)

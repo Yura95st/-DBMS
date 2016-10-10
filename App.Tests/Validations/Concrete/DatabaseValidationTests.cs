@@ -1,5 +1,6 @@
 ﻿namespace App.Tests.Validations.Concrete
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -32,7 +33,7 @@
             {
                 Models.Attribute attribute = new Models.Attribute { Name = attributeName, Type = attributeType };
 
-                TableScheme tableScheme = new TableScheme(tableName, new[] { attribute });
+                TableScheme tableScheme = new TableScheme(tableName, new List<Models.Attribute> { attribute });
 
                 InvalidTableSchemeException ex =
                     Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
@@ -58,7 +59,7 @@
             {
                 Models.Attribute attribute = new Models.Attribute { Name = attributeName, Type = attributeType };
 
-                TableScheme tableScheme = new TableScheme(tableName, new[] { attribute });
+                TableScheme tableScheme = new TableScheme(tableName, new List<Models.Attribute> { attribute });
 
                 InvalidTableSchemeException ex =
                     Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
@@ -104,6 +105,16 @@
         }
 
         [Test]
+        public void CheckTableScheme_TableSchemeIsNull_ThrowsArgumentNullException()
+        {
+            // Arrange - create target
+            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => target.CheckTableScheme(null));
+        }
+
+        [Test]
         public void CheckTableScheme_TableSchemeIsValid_DoesNotThrowAnyException()
         {
             // Arrange
@@ -118,6 +129,94 @@
 
             // Act and Assert
             Assert.DoesNotThrow(() => target.CheckTableScheme(tableScheme));
+        }
+
+        [Test]
+        public void DoesRowFitTable_ArgumentsAreNull_ThrowsArgumentNullException()
+        {
+            // Arrange
+            Table table = new Table();
+            Row row = new Row();
+
+            // Arrange - create target
+            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => target.DoesRowFitTable(null, row));
+            Assert.Throws<ArgumentNullException>(() => target.DoesRowFitTable(table, null));
+        }
+
+        [Test]
+        public void DoesRowFitTable_RowDoesNotFitTableSize_ReturnsFalse()
+        {
+            // Arrange
+            Table table = new Table
+            {
+                Name = "testTable",
+                Attributes =
+                    new List<Models.Attribute>
+                    {
+                        new Models.Attribute
+                            { Name = "testAttribute", Type = this._dbValidationSettings.DataTypes.Keys.First() }
+                    }
+            };
+            List<Row> rows = new List<Row>
+                { new Row { Value = new List<string> { "1", "2" } }, new Row { Value = new List<string>() } };
+
+            // Arrange - create target
+            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
+
+            // Act and Assert
+            foreach (Row row in rows)
+            {
+                Assert.IsFalse(target.DoesRowFitTable(table, row));
+            }
+        }
+
+        [Test]
+        public void DoesRowFitTable_RowFitsTable_ReturnsTrue()
+        {
+            // Arrange
+            Table table = new Table
+            {
+                Name = "testTable",
+                Attributes =
+                    new List<Models.Attribute>
+                    {
+                        new Models.Attribute
+                            { Name = "testAttribute", Type = this._dbValidationSettings.DataTypes.Keys.First() }
+                    }
+            };
+            Row row = new Row { Value = new List<string> { "1" } };
+
+            // Arrange - create target
+            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
+
+            // Act and Assert
+            Assert.IsTrue(target.DoesRowFitTable(table, row));
+        }
+
+        [Test]
+        public void DoesRowFitTable_RowHasInvalidValue_ReturnsFalse()
+        {
+            // Arrange
+            Table table = new Table
+            {
+                Name = "testTable",
+                Attributes =
+                    new List<Models.Attribute>
+                    {
+                        new Models.Attribute
+                            { Name = "testAttribute", Type = this._dbValidationSettings.DataTypes.Keys.First() }
+                    }
+            };
+            Row row = new Row { Value = new List<string> { "1234sometext" } };
+
+            // Arrange - create target
+            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
+
+            // Act and Assert
+            Assert.IsFalse(target.DoesRowFitTable(table, row));
         }
 
         [SetUp]

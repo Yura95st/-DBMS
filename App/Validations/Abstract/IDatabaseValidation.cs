@@ -4,10 +4,10 @@
 
     public interface IDatabaseValidation
     {
-        void CheckRow(Table table, Row row);
-
         void CheckTableScheme(TableScheme tableScheme);
 
         bool IsValidDatabaseName(string dbName);
+
+        bool DoesRowFitTable(Table table, Row row);
     }
 }

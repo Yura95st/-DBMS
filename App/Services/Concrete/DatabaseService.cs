@@ -48,13 +48,9 @@
                 throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
             }
 
-            try
+            if (!this._databaseValidation.DoesRowFitTable(table, row))
             {
-                this._databaseValidation.CheckRow(table, row);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidRowException("Row is invalid. See inner exception for details.", ex);
+                throw new InvalidRowException("Row is invalid. See inner exception for details.");
             }
 
             row.Id = table.NextRowId;
@@ -272,7 +268,7 @@
 
             try
             {
-                this._databaseValidation.CheckRow(table, row);
+                this._databaseValidation.DoesRowFitTable(table, row);
             }
             catch (Exception ex)
             {

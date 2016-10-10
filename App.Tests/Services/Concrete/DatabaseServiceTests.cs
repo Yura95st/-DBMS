@@ -89,23 +89,20 @@
             Table table = this._testTable;
             Row row = new Row();
 
-            Exception innerException = new Exception();
-
             // Arrange - mock dbValidation
-            this._dbValidationMock.Setup(v => v.CheckRow(table, row))
-                .Throws(innerException);
+            this._dbValidationMock.Setup(v => v.DoesRowFitTable(table, row))
+                .Returns(false);
 
             // Arrange - create target
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
-            InvalidRowException exeption = Assert.Throws<InvalidRowException>(() => target.AddRow(dbName, table.Name, row));
-            Assert.AreSame(exeption.InnerException, innerException);
+            Assert.Throws<InvalidRowException>(() => target.AddRow(dbName, table.Name, row));
 
             // Table was not changed.
             Assert.AreEqual(target.GetTable(dbName, table.Name), this._testTable);
 
-            this._dbValidationMock.Verify(v => v.CheckRow(table, row), Times.Once);
+            this._dbValidationMock.Verify(v => v.DoesRowFitTable(table, row), Times.Once);
         }
 
         [Test]
@@ -694,7 +691,7 @@
             Exception innerException = new Exception();
 
             // Arrange - mock dbValidation
-            this._dbValidationMock.Setup(v => v.CheckRow(table, row))
+            this._dbValidationMock.Setup(v => v.DoesRowFitTable(table, row))
                 .Throws(innerException);
 
             // Arrange - create target
@@ -707,7 +704,7 @@
             // Table was not changed.
             Assert.AreEqual(target.GetTable(dbName, table.Name), this._testTable);
 
-            this._dbValidationMock.Verify(v => v.CheckRow(table, row), Times.Once);
+            this._dbValidationMock.Verify(v => v.DoesRowFitTable(table, row), Times.Once);
         }
 
         [Test]
@@ -743,7 +740,7 @@
                 Rows = { { row.Id, row } }
             };
 
-            this._testDb = new Database { Name = "someDatabase", TableNames = new[] { this._testTable.Name } };
+            this._testDb = new Database { Name = "someDatabase", TableNames = new List<string> { this._testTable.Name } };
 
             Directory.CreateDirectory(this._dbServiceSettings.StoragePath);
 
@@ -763,6 +760,8 @@
             this._dbValidationMock = new Mock<IDatabaseValidation>();
 
             this._dbValidationMock.Setup(v => v.IsValidDatabaseName(It.IsAny<string>()))
+                .Returns(true);
+            this._dbValidationMock.Setup(v => v.DoesRowFitTable(It.IsAny<Table>(), It.IsAny<Row>()))
                 .Returns(true);
         }
     }
