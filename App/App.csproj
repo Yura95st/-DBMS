@@ -108,6 +108,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Exceptions\InvalidAttributeException.cs" />
     <Compile Include="Exceptions\InvalidRowException.cs" />
     <Compile Include="Exceptions\RowNotFoundException.cs" />
     <Compile Include="Exceptions\TableNotFoundException.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Services\Concrete\DatabaseService.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Validations\Abstract\IDatabaseValidation.cs" />
+    <Compile Include="Validations\Concrete\DatabaseValidation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -144,7 +146,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\" />
-    <Folder Include="Validations\Concrete\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <PropertyGroup>

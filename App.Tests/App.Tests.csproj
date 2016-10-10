@@ -59,6 +59,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Concrete\DatabaseServiceTests.cs" />
     <Compile Include="Utils\GuardTests.cs" />
+    <Compile Include="Validations\Concrete\DatabaseValidationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
