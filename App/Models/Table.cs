@@ -66,8 +66,27 @@
 
         protected bool Equals(Table other)
         {
-            return this.Attributes.SequenceEqual(other.Attributes) && string.Equals(this.Name, other.Name)
-                && this.NextRowId == other.NextRowId && this.Rows.SequenceEqual(other.Rows);
+            if ((this.Attributes == null && other.Attributes != null) || (this.Attributes != null && other.Attributes == null))
+            {
+                return false;
+            }
+
+            if (this.Attributes != null && other.Attributes != null && !this.Attributes.SequenceEqual(other.Attributes))
+            {
+                return false;
+            }
+
+            if ((this.Rows == null && other.Rows != null) || (this.Rows != null && other.Rows == null))
+            {
+                return false;
+            }
+
+            if (this.Rows != null && other.Rows != null && !this.Rows.SequenceEqual(other.Rows))
+            {
+                return false;
+            }
+
+            return this.NextRowId == other.NextRowId && string.Equals(this.Name, other.Name);
         }
     }
 }

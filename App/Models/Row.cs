@@ -49,7 +49,17 @@
 
         protected bool Equals(Row other)
         {
-            return this.Id == other.Id && this.Value.SequenceEqual(other.Value);
+            if (this.Id != other.Id)
+            {
+                return false;
+            }
+
+            if (this.Value == null)
+            {
+                return other.Value == null;
+            }
+
+            return this.Value.SequenceEqual(other.Value);
         }
     }
 }
