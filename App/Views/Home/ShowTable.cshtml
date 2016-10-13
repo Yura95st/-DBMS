@@ -1,0 +1,45 @@
+﻿@using App.Models
+@model App.Models.Table
+
+@{
+    ViewBag.Title = "ShowTable";
+}
+
+<h2>@Model.Name</h2>
+
+<ul class="nav nav-pills">
+    <li role="presentation" class="active">
+        <a href="#">Browse</a>
+    </li>
+    <li role="presentation">
+        <a href="#">Scheme</a>
+    </li>
+</ul>
+
+<table class="table table-bordered table-striped table-responsive">
+    <thead>
+    <tr>
+        <th />
+        @foreach (App.Models.Attribute attribute in Model.Attributes)
+        {
+            <th>@attribute.Name</th>
+        }
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (Row row in Model.Rows.Values)
+    {
+        <tr>
+            <td style="text-align: center;">
+                <a href="#">edit</a>
+                <span style="margin: 0 2px 0;">|</span>
+                <a href="#">delete</a>
+            </td>
+            @foreach (string rowValue in row.Value)
+            {
+                <td>@rowValue</td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>

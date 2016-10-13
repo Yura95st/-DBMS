@@ -1,0 +1,21 @@
+﻿@model App.Models.Database
+
+@{
+    ViewBag.Title = "ShowDatabase";
+}
+
+<h2>@Model.Name</h2>
+
+<div class="input-group">
+    <input type="text" class="form-control" placeholder="Type the name of table">
+    <span class="input-group-btn">
+        <button class="btn btn-success" type="button">Create</button>
+    </span>
+</div>
+
+<div class="list-group" style="margin: 10px 0 0">
+    @foreach (string tableName in Model.TableNames)
+    {
+        @Html.ActionLink(tableName, "ShowTable", "Home", new { dbName = Model.Name, tableName }, new { @class = "list-group-item" })
+    }
+</div>
