@@ -118,6 +118,10 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Dal\Repositories\Abstract\IDbRepository.cs" />
+    <Compile Include="Dal\Repositories\Concrete\DbRepository.cs" />
+    <Compile Include="Exceptions\DbRepositoryException.cs" />
     <Compile Include="Exceptions\InvalidAttributeException.cs" />
     <Compile Include="Exceptions\InvalidRowException.cs" />
     <Compile Include="Exceptions\RowNotFoundException.cs" />
@@ -132,6 +136,7 @@
     </Compile>
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\Database.cs" />
+    <Compile Include="Models\DbRepositorySettings.cs" />
     <Compile Include="Models\DatabaseValidationSettings.cs" />
     <Compile Include="Models\DatabaseServiceSettings.cs" />
     <Compile Include="Models\Row.cs" />
@@ -151,6 +156,10 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.1.1.min.map" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\ShowDatabase.cshtml" />
+    <Content Include="Views\Home\ShowTable.cshtml" />
+    <Content Include="Views\Home\ShowTableScheme.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
