@@ -603,6 +603,112 @@
             Assert.IsNull(table);
         }
 
+        [Test]
+        public void GetTableProjection_ArgumentsAreNullOrEmpty_ThrowsArgumentExceptions()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            string[] attributesNames = { "someAttribute" };
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<ArgumentNullException>(() => target.GetTableProjection(null, tableName, attributesNames));
+            Assert.Throws<ArgumentNullException>(() => target.GetTableProjection(dbName, null, attributesNames));
+            Assert.Throws<ArgumentNullException>(() => target.GetTableProjection(dbName, tableName, null));
+
+            Assert.Throws<ArgumentException>(() => target.GetTableProjection("", tableName, attributesNames));
+            Assert.Throws<ArgumentException>(() => target.GetTableProjection(dbName, "", attributesNames));
+            Assert.Throws<ArgumentException>(() => target.GetTableProjection(dbName, tableName, Enumerable.Empty<string>()));
+        }
+
+        [Test]
+        public void GetTableProjection_ArgumetnsAreValid_ReturnsTable()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            Table testTable = this._testTable;
+            string[] attributesNames =
+            {
+                testTable.Attributes.First()
+                    .Name
+            };
+
+            for (int i = 1; i < testTable.Attributes.Count; i++)
+            {
+                testTable.Attributes.RemoveAt(i);
+
+                foreach (Row row in testTable.Rows.Values)
+                {
+                    row.Value.RemoveAt(i);
+                }
+            }
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            Table table = target.GetTableProjection(dbName, testTable.Name, attributesNames);
+
+            // Assert
+            Assert.AreEqual(table, testTable);
+        }
+
+        [Test]
+        public void GetTableProjection_NonexistentAttributeName_ThrowsNonexistentAttributeException()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            string tableName = this._testTable.Name;
+            string[] attributesNames =
+            {
+                this._testTable.Attributes.First()
+                    .Name,
+                "testAttribute"
+            };
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<NonexistentAttributeException>(() => target.GetTableProjection(dbName, tableName, attributesNames));
+        }
+
+        [Test]
+        public void GetTableProjection_NonexistentDatabaseName_ThrowsDatabaseNotFoundException()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            string[] attributesNames = { "testAttribute" };
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act and Assert
+            Assert.Throws<DatabaseNotFoundException>(() => target.GetTableProjection(dbName, tableName, attributesNames));
+        }
+
+        [Test]
+        public void GetTableProjection_NonexistentTableName_ReturnsNull()
+        {
+            // Arrange
+            string dbName = this._testDb.Name;
+            string tableName = "testTable";
+            string[] attributesNames = { "testAttribute" };
+
+            // Arrange - create target
+            IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
+
+            // Act
+            Table table = target.GetTableProjection(dbName, tableName, attributesNames);
+
+            // Assert
+            Assert.IsNull(table);
+        }
+
         [SetUp]
         public void Init()
         {
@@ -731,12 +837,16 @@
 
         private void InitDatabase()
         {
-            Row row = new Row { Id = 0, Value = { "someValue" } };
+            Row row = new Row { Id = 0, Value = { "someValue", "anotherValue" } };
 
             this._testTable = new Table
             {
                 Name = "someTable", NextRowId = row.Id + 1,
-                Attributes = { new Models.Attribute { Name = "firstAttribute", Type = "someType" } },
+                Attributes =
+                {
+                    new Models.Attribute { Name = "firstAttribute", Type = "someType" },
+                    new Models.Attribute { Name = "secondAttribute", Type = "someType" }
+                },
                 Rows = { { row.Id, row } }
             };
 

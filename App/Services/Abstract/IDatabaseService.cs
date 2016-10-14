@@ -24,6 +24,8 @@
 
         Table GetTable(string dbName, string tableName);
 
+        Table GetTableProjection(string dbName, string tableName, IEnumerable<string> attributesNames);
+
         void UpdateRow(string dbName, string tableName, Row row);
     }
 }

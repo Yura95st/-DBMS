@@ -243,6 +243,65 @@
             }
         }
 
+        public Table GetTableProjection(string dbName, string tableName, IEnumerable<string> attributesNames)
+        {
+            Guard.NotNullOrEmpty(dbName, "dbName");
+            Guard.NotNullOrEmpty(tableName, "tableName");
+            Guard.NotNullOrEmpty(attributesNames, "attributesNames");
+
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
+            {
+                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
+            }
+
+            if (!db.TableNames.Contains(tableName))
+            {
+                return null;
+            }
+
+            string tablePath = this.GetTablePath(dbName, tableName);
+            string tableJson = File.ReadAllText(tablePath);
+
+            Table table;
+            try
+            {
+                table = JsonConvert.DeserializeObject<Table>(tableJson);
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+
+            HashSet<int> attributesIndexes = new HashSet<int>();
+
+            foreach (string attributeName in attributesNames)
+            {
+                Models.Attribute attribute = table.Attributes.FirstOrDefault(a => a.Name == attributeName);
+                if (attribute == null)
+                {
+                    throw new NonexistentAttributeException($"Attribute with name \"{attributeName}\" does not exist in table \"{tableName}\"");
+                }
+
+                attributesIndexes.Add(table.Attributes.IndexOf(attribute));
+            }
+
+            for (int i = 0; i < table.Attributes.Count; i++)
+            {
+                if (!attributesIndexes.Contains(i))
+                {
+                    table.Attributes.RemoveAt(i);
+
+                    foreach (Row row in table.Rows.Values)
+                    {
+                        row.Value.RemoveAt(i);
+                    }
+                }
+            }
+
+            return table;
+        }
+
         public void UpdateRow(string dbName, string tableName, Row row)
         {
             Guard.NotNullOrEmpty(dbName, "dbName");
