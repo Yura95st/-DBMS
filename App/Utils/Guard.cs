@@ -1,6 +1,8 @@
 ﻿namespace App.Utils
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     ///     A static helper class that includes various parameter checking routines.
@@ -47,6 +49,23 @@
             Guard.NotNull(argumentValue, argumentName);
 
             if (argumentValue.Length == 0)
+            {
+                throw new ArgumentException($"Argument '{argumentName}' must not be empty.", argumentName);
+            }
+        }
+
+        /// <summary>
+        ///     Throws an exception if the tested argument is null or an empty enumerable.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">The argument value is null.</exception>
+        /// <exception cref="ArgumentException">The argument is empty.</exception>
+        /// <param name="argumentValue">The argument value to test.</param>
+        /// <param name="argumentName">The name of the argument to test.</param>
+        public static void NotNullOrEmpty<T>(IEnumerable<T> argumentValue, string argumentName)
+        {
+            Guard.NotNull(argumentValue, argumentName);
+
+            if (!argumentValue.Any())
             {
                 throw new ArgumentException($"Argument '{argumentName}' must not be empty.", argumentName);
             }
