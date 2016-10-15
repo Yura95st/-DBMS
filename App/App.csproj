@@ -153,6 +153,8 @@
     <Compile Include="Exceptions\DbRepositoryException.cs" />
     <Compile Include="Exceptions\AttributeNotFoundException.cs" />
     <Compile Include="Exceptions\InvalidAttributeException.cs" />
+    <Compile Include="Exceptions\InvalidTableAttributesException.cs" />
+    <Compile Include="Exceptions\InvalidTableNameException.cs" />
     <Compile Include="Exceptions\InvalidRowException.cs" />
     <Compile Include="Exceptions\RowNotFoundException.cs" />
     <Compile Include="Exceptions\TableNotFoundException.cs" />

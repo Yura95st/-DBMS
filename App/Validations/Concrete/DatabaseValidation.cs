@@ -27,12 +27,12 @@
 
             if (!DatabaseValidation.IsValidFileName(tableScheme.Name))
             {
-                throw new InvalidTableSchemeException($"Table scheme has invalid name \"{tableScheme.Name}\".");
+                throw new InvalidTableNameException("Table scheme has invalid name.");
             }
 
             if (tableScheme.Attributes.Count == 0)
             {
-                throw new InvalidTableSchemeException("Table scheme has no attributes.");
+                throw new InvalidTableAttributesException("Table scheme has no attributes.");
             }
 
             try
@@ -44,7 +44,8 @@
             }
             catch (InvalidAttributeException ex)
             {
-                throw new InvalidTableSchemeException("Table scheme is invalid. See inner exception for details.", ex);
+                throw new InvalidTableAttributesException(
+                    "Table scheme has invalid attribute. See inner exception for details.", ex);
             }
         }
 

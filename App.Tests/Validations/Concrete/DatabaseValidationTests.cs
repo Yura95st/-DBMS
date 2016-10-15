@@ -18,7 +18,7 @@
         private DatabaseValidationSettings _dbValidationSettings;
 
         [Test]
-        public void CheckTableScheme_TableSchemeHasAttributeWithInvalidName_ThrowsInvalidTableSchemeException()
+        public void CheckTableScheme_TableSchemeHasAttributeWithInvalidName_ThrowsInvalidTableAttributesException()
         {
             // Arrange
             string tableName = "testTable";
@@ -35,8 +35,8 @@
 
                 TableScheme tableScheme = new TableScheme(tableName, new List<Models.Attribute> { attribute });
 
-                InvalidTableSchemeException ex =
-                    Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
+                InvalidTableAttributesException ex =
+                    Assert.Throws<InvalidTableAttributesException>(() => target.CheckTableScheme(tableScheme));
 
                 Assert.NotNull(ex.InnerException);
                 Assert.AreSame(ex.InnerException.GetType(), typeof(InvalidAttributeException));
@@ -44,7 +44,7 @@
         }
 
         [Test]
-        public void CheckTableScheme_TableSchemeHasAttributeWithUnknownType_ThrowsInvalidTableSchemeException()
+        public void CheckTableScheme_TableSchemeHasAttributeWithUnknownType_ThrowsInvalidAttributeException()
         {
             // Arrange
             string tableName = "testTable";
@@ -61,8 +61,8 @@
 
                 TableScheme tableScheme = new TableScheme(tableName, new List<Models.Attribute> { attribute });
 
-                InvalidTableSchemeException ex =
-                    Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
+                InvalidTableAttributesException ex =
+                    Assert.Throws<InvalidTableAttributesException>(() => target.CheckTableScheme(tableScheme));
 
                 Assert.NotNull(ex.InnerException);
                 Assert.AreSame(ex.InnerException.GetType(), typeof(InvalidAttributeException));
@@ -70,7 +70,7 @@
         }
 
         [Test]
-        public void CheckTableScheme_TableSchemeHasInvalidName_ThrowsInvalidTableSchemeException()
+        public void CheckTableScheme_TableSchemeHasInvalidName_ThrowsInvalidTableNameException()
         {
             // Arrange
             string[] tableNames = { "", " ", new string(Path.GetInvalidFileNameChars()) };
@@ -87,12 +87,12 @@
             {
                 TableScheme tableScheme = new TableScheme(tableName, attributes);
 
-                Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
+                Assert.Throws<InvalidTableNameException>(() => target.CheckTableScheme(tableScheme));
             }
         }
 
         [Test]
-        public void CheckTableScheme_TableSchemeHasNoAttributes_ThrowsInvalidTableSchemeException()
+        public void CheckTableScheme_TableSchemeHasNoAttributes_ThrowsInvalidTableAttributesException()
         {
             // Arrange
             TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
@@ -101,7 +101,7 @@
             DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
 
             // Act and Assert
-            Assert.Throws<InvalidTableSchemeException>(() => target.CheckTableScheme(tableScheme));
+            Assert.Throws<InvalidTableAttributesException>(() => target.CheckTableScheme(tableScheme));
         }
 
         [Test]
