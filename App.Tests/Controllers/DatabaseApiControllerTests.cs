@@ -45,83 +45,34 @@
         }
 
         [Test]
-        public void CreateDatabase_DatabaseServiceThrowsArgumentException_ReturnsBadRequestResult()
+        public void CreateDatabase_DatabaseServiceThrowsExceptions_ReturnsValidResults()
         {
             // Arrange
             string dbName = "testDatabase";
 
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateDatabase(dbName))
-                .Throws<ArgumentException>();
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new InvalidNameFormatException(), typeof(BadRequestErrorMessageResult) },
+                { new DatabaseAlreadyExistsException(), typeof(ConflictResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
 
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.CreateDatabase(dbName))
+                    .Throws(result.Key);
 
-            // Act
-            IHttpActionResult actionResult = target.CreateDatabase(dbName);
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
 
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(actionResult);
-        }
+                // Act
+                IHttpActionResult actionResult = target.CreateDatabase(dbName);
 
-        [Test]
-        public void CreateDatabase_DatabaseServiceThrowsDatabaseAlreadyExistsException_ReturnsConflictResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateDatabase(dbName))
-                .Throws<DatabaseAlreadyExistsException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.CreateDatabase(dbName);
-
-            // Assert
-            Assert.IsInstanceOf<ConflictResult>(actionResult);
-        }
-
-        [Test]
-        public void CreateDatabase_DatabaseServiceThrowsDbServiceException_ReturnsInternalServerErrorResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateDatabase(dbName))
-                .Throws<DbServiceException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.CreateDatabase(dbName);
-
-            // Assert
-            Assert.IsInstanceOf<InternalServerErrorResult>(actionResult);
-        }
-
-        [Test]
-        public void CreateDatabase_DatabaseServiceThrowsInvalidNameFormatException_ReturnsBadRequestErrorMessageResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateDatabase(dbName))
-                .Throws<InvalidNameFormatException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.CreateDatabase(dbName);
-
-            // Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(actionResult);
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
         }
 
         [Test]
@@ -150,108 +101,36 @@
         }
 
         [Test]
-        public void CreateTable_DatabaseServiceThrowsArgumentException_ReturnsBadRequestResult()
+        public void CreateTable_DatabaseServiceThrowsExceptions_ReturnsValidResults()
         {
             // Arrange
             string dbName = "testDatabase";
             TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
 
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateTable(dbName, tableScheme))
-                .Throws<ArgumentException>();
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DatabaseNotFoundException(), typeof(BadRequestErrorMessageResult) },
+                { new InvalidTableSchemeException(), typeof(BadRequestErrorMessageResult) },
+                { new TableAlreadyExistsException(), typeof(ConflictResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
 
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.CreateTable(dbName, tableScheme))
+                    .Throws(result.Key);
 
-            // Act
-            IHttpActionResult actionResult = target.CreateTable(dbName, tableScheme);
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
 
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(actionResult);
-        }
+                // Act
+                IHttpActionResult actionResult = target.CreateTable(dbName, tableScheme);
 
-        [Test]
-        public void CreateTable_DatabaseServiceThrowsDatabaseNotFoundException_ReturnsBadRequestErrorMessageResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateTable(dbName, tableScheme))
-                .Throws<DatabaseNotFoundException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.CreateTable(dbName, tableScheme);
-
-            // Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(actionResult);
-        }
-
-        [Test]
-        public void CreateTable_DatabaseServiceThrowsDbServiceException_ReturnsInternalServerErrorResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateTable(dbName, tableScheme))
-                .Throws<DbServiceException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.CreateTable(dbName, tableScheme);
-
-            // Assert
-            Assert.IsInstanceOf<InternalServerErrorResult>(actionResult);
-        }
-
-        [Test]
-        public void CreateTable_DatabaseServiceThrowsInvalidTableSchemeException_ReturnsBadRequestErrorMessageResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateTable(dbName, tableScheme))
-                .Throws<InvalidTableSchemeException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.CreateTable(dbName, tableScheme);
-
-            // Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(actionResult);
-        }
-
-        [Test]
-        public void CreateTable_DatabaseServiceThrowsTableAlreadyExistsException_ReturnsConflictResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.CreateTable(dbName, tableScheme))
-                .Throws<TableAlreadyExistsException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.CreateTable(dbName, tableScheme);
-
-            // Assert
-            Assert.IsInstanceOf<ConflictResult>(actionResult);
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
         }
 
         [Test]
@@ -273,63 +152,33 @@
         }
 
         [Test]
-        public void DropDatabase_DatabaseServiceThrowsArgumentException_ReturnsBadRequestResult()
+        public void DropDatabase_DatabaseServiceThrowsExceptions_ReturnsValidResults()
         {
             // Arrange
             string dbName = "testDatabase";
 
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.DropDatabase(dbName))
-                .Throws<ArgumentException>();
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DatabaseNotFoundException(), typeof(NotFoundResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
 
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.DropDatabase(dbName))
+                    .Throws(result.Key);
 
-            // Act
-            IHttpActionResult actionResult = target.DropDatabase(dbName);
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
 
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(actionResult);
-        }
+                // Act
+                IHttpActionResult actionResult = target.DropDatabase(dbName);
 
-        [Test]
-        public void DropDatabase_DatabaseServiceThrowsDatabaseNotFoundException_ReturnsNotFoundResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.DropDatabase(dbName))
-                .Throws<DatabaseNotFoundException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.DropDatabase(dbName);
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundResult>(actionResult);
-        }
-
-        [Test]
-        public void DropDatabase_DatabaseServiceThrowsDbServiceException_ReturnsInternalServerErrorResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.DropDatabase(dbName))
-                .Throws<DbServiceException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.DropDatabase(dbName);
-
-            // Assert
-            Assert.IsInstanceOf<InternalServerErrorResult>(actionResult);
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
         }
 
         [Test]
@@ -352,87 +201,35 @@
         }
 
         [Test]
-        public void DropTable_DatabaseServiceThrowsArgumentException_ReturnsBadRequestResult()
+        public void DropTable_DatabaseServiceThrowsExceptions_ReturnsValidResults()
         {
             // Arrange
             string dbName = "testDatabase";
             string tableName = "testTable";
 
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.DropTable(dbName, tableName))
-                .Throws<ArgumentException>();
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DatabaseNotFoundException(), typeof(NotFoundResult) },
+                { new TableNotFoundException(), typeof(NotFoundResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
 
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.DropTable(dbName, tableName))
+                    .Throws(result.Key);
 
-            // Act
-            IHttpActionResult actionResult = target.DropTable(dbName, tableName);
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
 
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(actionResult);
-        }
+                // Act
+                IHttpActionResult actionResult = target.DropTable(dbName, tableName);
 
-        [Test]
-        public void DropTable_DatabaseServiceThrowsDatabaseNotFoundException_ReturnsNotFoundResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.DropTable(dbName, tableName))
-                .Throws<DatabaseNotFoundException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.DropTable(dbName, tableName);
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundResult>(actionResult);
-        }
-
-        [Test]
-        public void DropTable_DatabaseServiceThrowsDbServiceException_ReturnsInternalServerErrorResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.DropTable(dbName, tableName))
-                .Throws<DbServiceException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.DropTable(dbName, tableName);
-
-            // Assert
-            Assert.IsInstanceOf<InternalServerErrorResult>(actionResult);
-        }
-
-        [Test]
-        public void DropTable_DatabaseServiceThrowsTableNotFoundException_ReturnsNotFoundResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.DropTable(dbName, tableName))
-                .Throws<TableNotFoundException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.DropTable(dbName, tableName);
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundResult>(actionResult);
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
         }
 
         [Test]
@@ -484,43 +281,32 @@
         }
 
         [Test]
-        public void GetDatabase_DatabaseServiceThrowsArgumentException_ReturnsBadRequestResult()
+        public void GetDatabase_DatabaseServiceThrowsExceptions_ReturnsValidResults()
         {
             // Arrange
             string dbName = "testDatabase";
 
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetDatabase(dbName))
-                .Throws<ArgumentException>();
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
 
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.GetDatabase(dbName))
+                    .Throws(result.Key);
 
-            // Act
-            IHttpActionResult actionResult = target.GetDatabase(dbName);
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
 
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(actionResult);
-        }
+                // Act
+                IHttpActionResult actionResult = target.GetDatabase(dbName);
 
-        [Test]
-        public void GetDatabase_DatabaseServiceThrowsDbServiceException_ReturnsInternalServerErrorResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetDatabase(dbName))
-                .Throws<DbServiceException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.GetDatabase(dbName);
-
-            // Assert
-            Assert.IsInstanceOf<InternalServerErrorResult>(actionResult);
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
         }
 
         [Test]
@@ -602,66 +388,34 @@
         }
 
         [Test]
-        public void GetTable_DatabaseServiceThrowsArgumentException_ReturnsBadRequestResult()
+        public void GetTable_DatabaseServiceThrowsExceptions_ReturnsValidResults()
         {
             // Arrange
             string dbName = "testDatabase";
             string tableName = "testTable";
 
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetTable(dbName, tableName))
-                .Throws<ArgumentException>();
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DatabaseNotFoundException(), typeof(NotFoundResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
 
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.GetTable(dbName, tableName))
+                    .Throws(result.Key);
 
-            // Act
-            IHttpActionResult actionResult = target.GetTable(dbName, tableName);
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
 
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(actionResult);
-        }
+                // Act
+                IHttpActionResult actionResult = target.GetTable(dbName, tableName);
 
-        [Test]
-        public void GetTable_DatabaseServiceThrowsDatabaseNotFoundException_ReturnsNotFoundResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetTable(dbName, tableName))
-                .Throws<DatabaseNotFoundException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.GetTable(dbName, tableName);
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundResult>(actionResult);
-        }
-
-        [Test]
-        public void GetTable_DatabaseServiceThrowsDbServiceException_ReturnsInternalServerErrorResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetTable(dbName, tableName))
-                .Throws<DbServiceException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.GetTable(dbName, tableName);
-
-            // Assert
-            Assert.IsInstanceOf<InternalServerErrorResult>(actionResult);
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
         }
 
         [Test]
@@ -722,91 +476,36 @@
         }
 
         [Test]
-        public void GetTableProjection_DatabaseServiceThrowsArgumentException_ReturnsBadRequestResult()
+        public void GetTableProjection_DatabaseServiceThrowsExceptions_ReturnsValidResults()
         {
             // Arrange
             string dbName = "testDatabase";
             string tableName = "testTable";
             string[] attributesNames = { "firstAttribute" };
 
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetTableProjection(dbName, tableName, attributesNames))
-                .Throws<ArgumentException>();
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new AttributeNotFoundException(), typeof(BadRequestErrorMessageResult) },
+                { new DatabaseNotFoundException(), typeof(NotFoundResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
 
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.GetTableProjection(dbName, tableName, attributesNames))
+                    .Throws(result.Key);
 
-            // Act
-            IHttpActionResult actionResult = target.GetTableProjection(dbName, tableName, attributesNames);
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
 
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(actionResult);
-        }
+                // Act
+                IHttpActionResult actionResult = target.GetTableProjection(dbName, tableName, attributesNames);
 
-        [Test]
-        public void GetTableProjection_DatabaseServiceThrowsAttributeNotFoundException_ReturnsBadRequestErrorMessageResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-            string[] attributesNames = { "firstAttribute" };
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetTableProjection(dbName, tableName, attributesNames))
-                .Throws<AttributeNotFoundException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.GetTableProjection(dbName, tableName, attributesNames);
-
-            // Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(actionResult);
-        }
-
-        [Test]
-        public void GetTableProjection_DatabaseServiceThrowsDatabaseNotFoundException_ReturnsNotFoundResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-            string[] attributesNames = { "firstAttribute" };
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetTableProjection(dbName, tableName, attributesNames))
-                .Throws<DatabaseNotFoundException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.GetTableProjection(dbName, tableName, attributesNames);
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundResult>(actionResult);
-        }
-
-        [Test]
-        public void GetTableProjection_DatabaseServiceThrowsDbServiceException_ReturnsInternalServerErrorResult()
-        {
-            // Arrange
-            string dbName = "testDatabase";
-            string tableName = "testTable";
-            string[] attributesNames = { "firstAttribute" };
-
-            // Arrange - mock dbService
-            this._dbServiceMock.Setup(s => s.GetTableProjection(dbName, tableName, attributesNames))
-                .Throws<DbServiceException>();
-
-            // Arrange - create target
-            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
-
-            // Act
-            IHttpActionResult actionResult = target.GetTableProjection(dbName, tableName, attributesNames);
-
-            // Assert
-            Assert.IsInstanceOf<InternalServerErrorResult>(actionResult);
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
         }
 
         [SetUp]
