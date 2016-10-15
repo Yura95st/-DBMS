@@ -161,7 +161,7 @@
         }
 
         [Test]
-        public void CreateDatabase_DatabaseNameIsValid_CreatesNewDatabaseAndReturnsDatabaseObject()
+        public void CreateDatabase_DatabaseNameIsValid_CreatesNewDatabase()
         {
             // Arrange
             string dbName = "testDatabase";
@@ -657,7 +657,7 @@
         }
 
         [Test]
-        public void GetTableProjection_NonexistentAttributeName_ThrowsNonexistentAttributeException()
+        public void GetTableProjection_NonexistentAttributeName_ThrowsAttributeNotFoundException()
         {
             // Arrange
             string dbName = this._testDb.Name;
@@ -673,7 +673,7 @@
             IDatabaseService target = new DatabaseService(this._dbServiceSettings, this._dbValidationMock.Object);
 
             // Act and Assert
-            Assert.Throws<NonexistentAttributeException>(() => target.GetTableProjection(dbName, tableName, attributesNames));
+            Assert.Throws<AttributeNotFoundException>(() => target.GetTableProjection(dbName, tableName, attributesNames));
         }
 
         [Test]

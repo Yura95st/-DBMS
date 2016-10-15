@@ -2,20 +2,20 @@
 {
     using System;
 
-    public class NonexistentAttributeException : Exception
+    public class AttributeNotFoundException : Exception
     {
         #region Constructors
 
-        public NonexistentAttributeException()
+        public AttributeNotFoundException()
         {
         }
 
-        public NonexistentAttributeException(string message)
+        public AttributeNotFoundException(string message)
             : base(message)
         {
         }
 
-        public NonexistentAttributeException(string message, Exception inner)
+        public AttributeNotFoundException(string message, Exception inner)
             : base(message, inner)
         {
         }

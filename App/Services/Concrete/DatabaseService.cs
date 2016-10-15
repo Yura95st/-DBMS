@@ -280,7 +280,7 @@
                 Models.Attribute attribute = table.Attributes.FirstOrDefault(a => a.Name == attributeName);
                 if (attribute == null)
                 {
-                    throw new NonexistentAttributeException($"Attribute with name \"{attributeName}\" does not exist in table \"{tableName}\"");
+                    throw new AttributeNotFoundException($"Attribute with name \"{attributeName}\" does not exist in table \"{tableName}\"");
                 }
 
                 attributesIndexes.Add(table.Attributes.IndexOf(attribute));
