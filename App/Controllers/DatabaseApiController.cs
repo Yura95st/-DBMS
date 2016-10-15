@@ -50,6 +50,38 @@
             }
         }
 
+        [Route("{dbName}")]
+        [HttpPost]
+        public IHttpActionResult CreateTable(string dbName, TableScheme tableScheme)
+        {
+            try
+            {
+                this._databaseService.CreateTable(dbName, tableScheme);
+
+                return this.CreatedAtRoute("GetTable", new { dbName, tableName = tableScheme.Name }, tableScheme);
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.BadRequest("Database with such name does not exist.");
+            }
+            catch (InvalidTableSchemeException)
+            {
+                return this.BadRequest("Invalid table scheme.");
+            }
+            catch (TableAlreadyExistsException)
+            {
+                return this.Conflict();
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
         [Route("")]
         [HttpDelete]
         public IHttpActionResult DropDatabase(string dbName)
@@ -65,6 +97,34 @@
                 return this.BadRequest();
             }
             catch (DatabaseNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
+        [Route("{dbName}")]
+        [HttpDelete]
+        public IHttpActionResult DropTable(string dbName, string tableName)
+        {
+            try
+            {
+                this._databaseService.DropTable(dbName, tableName);
+
+                return this.Ok();
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (TableNotFoundException)
             {
                 return this.NotFound();
             }
@@ -107,11 +167,78 @@
             return this.Ok(dbNames);
         }
 
+        [Route("{dbName}/{tableName}", Name = "GetTable")]
+        [HttpGet]
+        public IHttpActionResult GetTable(string dbName, string tableName)
+        {
+            try
+            {
+                Table table = this._databaseService.GetTable(dbName, tableName);
+                if (table == null)
+                {
+                    return this.NotFound();
+                }
+
+                return this.Ok(DatabaseApiController.GetTableDto(table));
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
+        [Route("{dbName}/{tableName}/projection")]
+        [HttpGet]
+        public IHttpActionResult GetTableProjection(string dbName, string tableName, [FromUri] IEnumerable<string> attributesNames)
+        {
+            try
+            {
+                Table table = this._databaseService.GetTableProjection(dbName, tableName, attributesNames);
+                if (table == null)
+                {
+                    return this.NotFound();
+                }
+
+                return this.Ok(DatabaseApiController.GetTableDto(table));
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (AttributeNotFoundException)
+            {
+                return this.BadRequest("Nonexistent attribute's name.");
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
         private static DatabaseDto GetDatabaseDto(Database database)
         {
             DatabaseDto dbDto = new DatabaseDto { Name = database.Name, TableNames = database.Tables.Keys };
 
             return dbDto;
+        }
+
+        private static TableDto GetTableDto(Table table)
+        {
+            TableDto tableDto = new TableDto { Name = table.Name, Attributes = table.Attributes, Rows = table.Rows.Values };
+
+            return tableDto;
         }
     }
 }
