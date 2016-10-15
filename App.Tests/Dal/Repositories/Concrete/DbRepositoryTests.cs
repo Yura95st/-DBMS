@@ -282,7 +282,7 @@
 
         private void InitDatabase()
         {
-            Row row = new Row { Id = 0, Value = { "someValue" } };
+            Row row = new Row { Id = 1, Value = { "someValue" } };
 
             Table table = new Table
             {

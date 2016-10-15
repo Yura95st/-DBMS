@@ -1090,7 +1090,7 @@
             // Arrange
             string dbName = this._testDb.Name;
             Table table = this._testTable;
-            Row row = new Row();
+            Row row = new Row {Id = table.Rows.Keys.First()};
 
             // Arrange - mock dbValidation
             this._dbValidationMock.Setup(v => v.DoesRowFitTable(table, row))
@@ -1125,8 +1125,7 @@
             
             Row row = new Row
             {
-                Id = table.Rows.Values.First()
-                    .Id
+                Id = table.Rows.Keys.First()
             };
 
             // Arrange - create target
@@ -1144,7 +1143,7 @@
 
         private void InitDatabase()
         {
-            Row row = new Row { Id = 0, Value = { "someValue", "anotherValue" } };
+            Row row = new Row { Id = 1, Value = { "someValue", "anotherValue" } };
 
             this._testTable = new Table
             {

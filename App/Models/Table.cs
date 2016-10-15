@@ -7,6 +7,7 @@
     {
         public Table()
         {
+            this.NextRowId = 1;
             this.Attributes = new List<Attribute>();
             this.Rows = new Dictionary<int, Row>();
         }
