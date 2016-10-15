@@ -2,30 +2,20 @@
 {
     using System.Web.Mvc;
 
+    using App.DTOs;
     using App.Models;
     using App.Services.Abstract;
-    using App.Services.Concrete;
-    using App.Validations.Concrete;
+    using App.Utils;
 
     public class HomeController : Controller
     {
         private readonly IDatabaseService _databaseService;
 
-        //public HomeController(IDatabaseService databaseService)
-        //{
-        //    Guard.NotNull(databaseService, "databaseService");
-
-        //    this._databaseService = databaseService;
-        //}
-
-        public HomeController()
+        public HomeController(IDatabaseService databaseService)
         {
-            DatabaseServiceSettings databaseServiceSettings = new DatabaseServiceSettings(@"d:\Temp\dbms_storage\databases",
-                "{0}.json", "tables");
-            DatabaseValidationSettings databaseValidationSettings = new DatabaseValidationSettings();
+            Guard.NotNull(databaseService, "databaseService");
 
-            this._databaseService = new DatabaseService(databaseServiceSettings,
-                new DatabaseValidation(databaseValidationSettings));
+            this._databaseService = databaseService;
         }
 
         public ActionResult Index()
@@ -44,7 +34,7 @@
                 return new HttpNotFoundResult("Database not found.");
             }
 
-            return this.View(db);
+            return this.View(new DatabaseDto { Name = db.Name, TableNames = db.Tables.Keys });
         }
 
         public ActionResult ShowTable(string dbName, string tableName)

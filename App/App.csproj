@@ -168,7 +168,6 @@
     <Compile Include="Models\Database.cs" />
     <Compile Include="Models\DbRepositorySettings.cs" />
     <Compile Include="Models\DatabaseValidationSettings.cs" />
-    <Compile Include="Models\DatabaseServiceSettings.cs" />
     <Compile Include="Models\Row.cs" />
     <Compile Include="Models\TableScheme.cs" />
     <Compile Include="Models\Table.cs" />

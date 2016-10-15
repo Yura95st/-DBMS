@@ -2,29 +2,27 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
 
+    using App.Dal.Repositories.Abstract;
     using App.Exceptions;
     using App.Models;
     using App.Services.Abstract;
     using App.Utils;
     using App.Validations.Abstract;
 
-    using Newtonsoft.Json;
-
     public class DatabaseService : IDatabaseService
     {
         private readonly IDatabaseValidation _databaseValidation;
 
-        private readonly DatabaseServiceSettings _settings;
+        private readonly IDbRepository _repository;
 
-        public DatabaseService(DatabaseServiceSettings settings, IDatabaseValidation databaseValidation)
+        public DatabaseService(IDbRepository repository, IDatabaseValidation databaseValidation)
         {
-            Guard.NotNull(settings, "settings");
+            Guard.NotNull(repository, "repository");
             Guard.NotNull(databaseValidation, "databaseValidation");
 
-            this._settings = settings;
+            this._repository = repository;
             this._databaseValidation = databaseValidation;
         }
 
@@ -36,13 +34,14 @@
             Guard.NotNullOrEmpty(tableName, "tableName");
             Guard.NotNull(row, "row");
 
-            IEnumerable<string> dbNames = this.GetDatabaseNames();
-            if (!dbNames.Contains(dbName))
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
 
-            Table table = this.GetTable(dbName, tableName);
+            Table table;
+            db.Tables.TryGetValue(tableName, out table);
             if (table == null)
             {
                 throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
@@ -50,7 +49,7 @@
 
             if (!this._databaseValidation.DoesRowFitTable(table, row))
             {
-                throw new InvalidRowException("Row is invalid. See inner exception for details.");
+                throw new InvalidRowException("Row does not fit table.");
             }
 
             row.Id = table.NextRowId;
@@ -58,7 +57,7 @@
 
             table.NextRowId++;
 
-            this.WriteTableToFile(table, dbName);
+            this.UpdateDatabase(db);
         }
 
         public void CreateDatabase(string dbName)
@@ -76,7 +75,15 @@
                 throw new DatabaseAlreadyExistsException($"Database with name \"{dbName}\" already exists.");
             }
 
-            Directory.CreateDirectory(this.GetDatabasePath(dbName));
+            Database database = new Database { Name = dbName };
+            try
+            {
+                this._repository.Create(database);
+            }
+            catch (DbRepositoryException ex)
+            {
+                throw new DbServiceException("Error occurred while creating database. See inner exception for details.", ex);
+            }
         }
 
         public void CreateTable(string dbName, TableScheme tableScheme)
@@ -99,18 +106,17 @@
                 throw new InvalidTableSchemeException("Table scheme is invalid. See inner exception for details.", ex);
             }
 
-            if (db.TableNames.Contains(tableScheme.Name))
+            if (db.Tables.ContainsKey(tableScheme.Name))
             {
                 throw new TableAlreadyExistsException(
                     $"Table with name \"{tableScheme.Name}\" already exists in database \"{dbName}\".");
             }
 
-            string tablesDirectoryPath = this.GetTablesDirectoryPath(dbName);
-            Directory.CreateDirectory(tablesDirectoryPath);
-
             Table table = new Table { Name = tableScheme.Name, Attributes = tableScheme.Attributes.ToList() };
 
-            this.WriteTableToFile(table, dbName);
+            db.Tables.Add(table.Name, table);
+
+            this.UpdateDatabase(db);
         }
 
         public void DeleteRow(string dbName, string tableName, int rowId)
@@ -119,13 +125,14 @@
             Guard.NotNullOrEmpty(tableName, "tableName");
             Guard.IntMoreOrEqualToZero(rowId, "rowId");
 
-            IEnumerable<string> dbNames = this.GetDatabaseNames();
-            if (!dbNames.Contains(dbName))
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
 
-            Table table = this.GetTable(dbName, tableName);
+            Table table;
+            db.Tables.TryGetValue(tableName, out table);
             if (table == null)
             {
                 throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
@@ -138,7 +145,7 @@
 
             table.Rows.Remove(rowId);
 
-            this.WriteTableToFile(table, dbName);
+            this.UpdateDatabase(db);
         }
 
         public void DropDatabase(string dbName)
@@ -151,7 +158,14 @@
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
 
-            Directory.Delete(this.GetDatabasePath(dbName), true);
+            try
+            {
+                this._repository.Delete(dbName);
+            }
+            catch (DbRepositoryException ex)
+            {
+                throw new DbServiceException("Error occurred while deleting database. See inner exception for details.", ex);
+            }
         }
 
         public void DropTable(string dbName, string tableName)
@@ -164,51 +178,43 @@
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
-
-            if (!db.TableNames.Contains(tableName))
+            if (!db.Tables.ContainsKey(tableName))
             {
                 throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
             }
 
-            string tablePath = this.GetTablePath(dbName, tableName);
-            File.Delete(tablePath);
+            db.Tables.Remove(tableName);
+
+            this.UpdateDatabase(db);
         }
 
         public Database GetDatabase(string dbName)
         {
             Guard.NotNullOrEmpty(dbName, "dbName");
 
-            string dbPath = this.GetDatabasePath(dbName);
-            if (!Directory.Exists(dbPath))
+            try
             {
-                return null;
+                Database db = this._repository.GetByName(dbName);
+                return db;
             }
-
-            Database db = new Database { Name = dbName };
-
-            string tablesPath = this.GetTablesDirectoryPath(dbName);
-            if (Directory.Exists(tablesPath))
+            catch (DbRepositoryException ex)
             {
-                List<string> tableNames = new List<string>();
-                foreach (string fileName in Directory.EnumerateFiles(tablesPath))
-                {
-                    tableNames.Add(Path.GetFileNameWithoutExtension(fileName));
-                }
-
-                db.TableNames = tableNames;
+                throw new DbServiceException(
+                    "Error occurred while getting all databases names. See inner exception for details.", ex);
             }
-
-            return db;
         }
 
         public IEnumerable<string> GetDatabaseNames()
         {
-            if (Directory.Exists(this._settings.StoragePath))
+            try
             {
-                foreach (string dirName in Directory.EnumerateDirectories(this._settings.StoragePath))
-                {
-                    yield return Path.GetFileName(dirName);
-                }
+                IEnumerable<string> dbNames = this._repository.GetAllNames();
+                return dbNames;
+            }
+            catch (DbRepositoryException ex)
+            {
+                throw new DbServiceException(
+                    "Error occurred while getting all databases names. See inner exception for details.", ex);
             }
         }
 
@@ -223,24 +229,10 @@
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
 
-            if (!db.TableNames.Contains(tableName))
-            {
-                return null;
-            }
+            Table table;
+            db.Tables.TryGetValue(tableName, out table);
 
-            string tablePath = this.GetTablePath(dbName, tableName);
-            string tableJson = File.ReadAllText(tablePath);
-
-            try
-            {
-                Table table = JsonConvert.DeserializeObject<Table>(tableJson);
-
-                return table;
-            }
-            catch (JsonException)
-            {
-                return null;
-            }
+            return table;
         }
 
         public Table GetTableProjection(string dbName, string tableName, IEnumerable<string> attributesNames)
@@ -249,52 +241,33 @@
             Guard.NotNullOrEmpty(tableName, "tableName");
             Guard.NotNullOrEmpty(attributesNames, "attributesNames");
 
-            Database db = this.GetDatabase(dbName);
-            if (db == null)
+            Table table = this.GetTable(dbName, tableName);
+            if (table != null)
             {
-                throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
-            }
+                HashSet<int> attributesIndexes = new HashSet<int>();
 
-            if (!db.TableNames.Contains(tableName))
-            {
-                return null;
-            }
-
-            string tablePath = this.GetTablePath(dbName, tableName);
-            string tableJson = File.ReadAllText(tablePath);
-
-            Table table;
-            try
-            {
-                table = JsonConvert.DeserializeObject<Table>(tableJson);
-            }
-            catch (JsonException)
-            {
-                return null;
-            }
-
-            HashSet<int> attributesIndexes = new HashSet<int>();
-
-            foreach (string attributeName in attributesNames)
-            {
-                Models.Attribute attribute = table.Attributes.FirstOrDefault(a => a.Name == attributeName);
-                if (attribute == null)
+                foreach (string attributeName in attributesNames)
                 {
-                    throw new AttributeNotFoundException($"Attribute with name \"{attributeName}\" does not exist in table \"{tableName}\"");
+                    Models.Attribute attribute = table.Attributes.FirstOrDefault(a => a.Name == attributeName);
+                    if (attribute == null)
+                    {
+                        throw new AttributeNotFoundException(
+                            $"Attribute with name \"{attributeName}\" does not exist in table \"{tableName}\"");
+                    }
+
+                    attributesIndexes.Add(table.Attributes.IndexOf(attribute));
                 }
 
-                attributesIndexes.Add(table.Attributes.IndexOf(attribute));
-            }
-
-            for (int i = 0; i < table.Attributes.Count; i++)
-            {
-                if (!attributesIndexes.Contains(i))
+                for (int i = 0; i < table.Attributes.Count; i++)
                 {
-                    table.Attributes.RemoveAt(i);
-
-                    foreach (Row row in table.Rows.Values)
+                    if (!attributesIndexes.Contains(i))
                     {
-                        row.Value.RemoveAt(i);
+                        table.Attributes.RemoveAt(i);
+
+                        foreach (Row row in table.Rows.Values)
+                        {
+                            row.Value.RemoveAt(i);
+                        }
                     }
                 }
             }
@@ -308,13 +281,14 @@
             Guard.NotNullOrEmpty(tableName, "tableName");
             Guard.NotNull(row, "row");
 
-            IEnumerable<string> dbNames = this.GetDatabaseNames();
-            if (!dbNames.Contains(dbName))
+            Database db = this.GetDatabase(dbName);
+            if (db == null)
             {
                 throw new DatabaseNotFoundException($"Database with name \"{dbName}\" does not exist.");
             }
 
-            Table table = this.GetTable(dbName, tableName);
+            Table table;
+            db.Tables.TryGetValue(tableName, out table);
             if (table == null)
             {
                 throw new TableNotFoundException($"Table with name \"{tableName}\" does not exist in database \"{dbName}\".");
@@ -325,44 +299,28 @@
                 throw new RowNotFoundException($"Row with id \"{row.Id}\" does not exist in table \"{tableName}\".");
             }
 
-            try
+            if (!this._databaseValidation.DoesRowFitTable(table, row))
             {
-                this._databaseValidation.DoesRowFitTable(table, row);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidRowException("Row is invalid. See inner exception for details.", ex);
+                throw new InvalidRowException("Row does not fit table.");
             }
 
             table.Rows[row.Id] = row;
 
-            this.WriteTableToFile(table, dbName);
+            this.UpdateDatabase(db);
         }
 
         #endregion
 
-        private string GetDatabasePath(string dbName)
+        private void UpdateDatabase(Database db)
         {
-            return Path.Combine(this._settings.StoragePath, dbName);
-        }
-
-        private string GetTablePath(string dbName, string tableName)
-        {
-            return Path.Combine(this.GetTablesDirectoryPath(dbName),
-                string.Format(this._settings.TableFileNameFormat, tableName));
-        }
-
-        private string GetTablesDirectoryPath(string dbName)
-        {
-            return Path.Combine(this.GetDatabasePath(dbName), $"{this._settings.TablesDirectoryName}/");
-        }
-
-        private void WriteTableToFile(Table table, string dbName)
-        {
-            string tablePath = this.GetTablePath(dbName, table.Name);
-            string tableJson = JsonConvert.SerializeObject(table);
-
-            File.WriteAllText(tablePath, tableJson);
+            try
+            {
+                this._repository.Update(db);
+            }
+            catch (DbRepositoryException ex)
+            {
+                throw new DbServiceException("DbRepository error occurred. See inner exception for details.", ex);
+            }
         }
     }
 }

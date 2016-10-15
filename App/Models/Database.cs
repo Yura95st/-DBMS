@@ -7,17 +7,10 @@
     {
         public Database()
         {
-            this.TableNames = Enumerable.Empty<string>();
             this.Tables = new Dictionary<string, Table>();
         }
 
         public string Name
-        {
-            get;
-            set;
-        }
-
-        public IEnumerable<string> TableNames
         {
             get;
             set;
@@ -51,7 +44,6 @@
             unchecked
             {
                 int hashCode = (this.Name != null ? this.Name.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.TableNames != null ? this.TableNames.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (this.Tables != null ? this.Tables.GetHashCode() : 0);
                 return hashCode;
             }
@@ -59,17 +51,6 @@
 
         protected bool Equals(Database other)
         {
-            if ((this.TableNames == null && other.TableNames != null)
-                || (this.TableNames != null && other.TableNames == null))
-            {
-                return false;
-            }
-
-            if (this.TableNames != null && other.TableNames != null && !this.TableNames.SequenceEqual(other.TableNames))
-            {
-                return false;
-            }
-
             if ((this.Tables == null && other.Tables != null) || (this.Tables != null && other.Tables == null))
             {
                 return false;

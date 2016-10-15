@@ -8,6 +8,8 @@ namespace App
     using System;
     using System.Web;
 
+    using App.Dal.Repositories.Abstract;
+    using App.Dal.Repositories.Concrete;
     using App.Models;
     using App.Services.Abstract;
     using App.Services.Concrete;
@@ -73,13 +75,16 @@ namespace App
         {
             // TODO: Load settings from config file
             DatabaseValidationSettings databaseValidationSettings = new DatabaseValidationSettings();
-            DatabaseServiceSettings databaseSettings = new DatabaseServiceSettings();
+            DbRepositorySettings dbRepositorySettings = new DbRepositorySettings();
+
+            kernel.Bind<IDbRepository>()
+                .ToMethod(context => new DbRepository(dbRepositorySettings));
 
             kernel.Bind<IDatabaseValidation>()
                 .ToMethod(context => new DatabaseValidation(databaseValidationSettings));
 
             kernel.Bind<IDatabaseService>()
-                .ToMethod(context => new DatabaseService(databaseSettings, context.Kernel.Get<IDatabaseValidation>()));
+                .ToMethod(context => new DatabaseService(context.Kernel.Get<IDbRepository>(), context.Kernel.Get<IDatabaseValidation>()));
         }
     }
 }
