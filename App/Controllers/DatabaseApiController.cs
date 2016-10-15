@@ -22,7 +22,59 @@
             this._databaseService = databaseService;
         }
 
-        [Route("{dbName}")]
+        [Route("")]
+        [HttpPost]
+        public IHttpActionResult CreateDatabase(string dbName)
+        {
+            try
+            {
+                this._databaseService.CreateDatabase(dbName);
+
+                return this.CreatedAtRoute("GetDatabase", new { dbName }, dbName);
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (InvalidNameFormatException)
+            {
+                return this.BadRequest("Invalid name format.");
+            }
+            catch (DatabaseAlreadyExistsException)
+            {
+                return this.Conflict();
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
+        [Route("")]
+        [HttpDelete]
+        public IHttpActionResult DropDatabase(string dbName)
+        {
+            try
+            {
+                this._databaseService.DropDatabase(dbName);
+
+                return this.Ok();
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
+        [Route("{dbName}", Name = "GetDatabase")]
         [HttpGet]
         public IHttpActionResult GetDatabase(string dbName)
         {
