@@ -22,6 +22,60 @@
         private Mock<IDatabaseService> _dbServiceMock;
 
         [Test]
+        public void AddRow_DatabaseServiceAddsRow_ReturnsOkResult()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            Row row = new Row { Value = { "someValue" } };
+
+            // Arrange - create target
+            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+
+            // Act
+            IHttpActionResult actionResult = target.AddRow(dbName, tableName, row);
+
+            // Assert
+            Assert.IsInstanceOf<OkResult>(actionResult);
+
+            this._dbServiceMock.Verify(s => s.AddRow(dbName, tableName, row), Times.Once);
+        }
+
+        [Test]
+        public void AddRow_DatabaseServiceThrowsExceptions_ReturnsValidResults()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            Row row = new Row { Value = { "someValue" } };
+
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DatabaseNotFoundException(), typeof(BadRequestErrorMessageResult) },
+                { new TableNotFoundException(), typeof(BadRequestErrorMessageResult) },
+                { new InvalidRowException(), typeof(BadRequestErrorMessageResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
+
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.AddRow(dbName, tableName, row))
+                    .Throws(result.Key);
+
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+
+                // Act
+                IHttpActionResult actionResult = target.AddRow(dbName, tableName, row);
+
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
+        }
+
+        [Test]
         public void CreateDatabase_DatabaseServiceCreatesDatabase_ReturnsCreatedAtRouteResult()
         {
             // Arrange
@@ -127,6 +181,60 @@
 
                 // Act
                 IHttpActionResult actionResult = target.CreateTable(dbName, tableScheme);
+
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
+        }
+
+        [Test]
+        public void DeleteRow_DatabaseServiceDeletesRow_ReturnsOkResult()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            int rowId = 1;
+
+            // Arrange - create target
+            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+
+            // Act
+            IHttpActionResult actionResult = target.DeleteRow(dbName, tableName, rowId);
+
+            // Assert
+            Assert.IsInstanceOf<OkResult>(actionResult);
+
+            this._dbServiceMock.Verify(s => s.DeleteRow(dbName, tableName, rowId), Times.Once);
+        }
+
+        [Test]
+        public void DeleteRow_DatabaseServiceThrowsExceptions_ReturnsValidResults()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            int rowId = 1;
+
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DatabaseNotFoundException(), typeof(NotFoundResult) },
+                { new TableNotFoundException(), typeof(NotFoundResult) },
+                { new RowNotFoundException(), typeof(NotFoundResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
+
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.DeleteRow(dbName, tableName, rowId))
+                    .Throws(result.Key);
+
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+
+                // Act
+                IHttpActionResult actionResult = target.DeleteRow(dbName, tableName, rowId);
 
                 // Assert
                 Assert.IsInstanceOf(result.Value, actionResult);
@@ -512,6 +620,61 @@
         public void Init()
         {
             this._dbServiceMock = new Mock<IDatabaseService>();
+        }
+
+        [Test]
+        public void UpdateRow_DatabaseServiceThrowsExceptions_ReturnsValidResults()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            Row row = new Row { Id = 1 };
+
+            Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
+            {
+                { new ArgumentException(), typeof(BadRequestResult) },
+                { new DatabaseNotFoundException(), typeof(NotFoundResult) },
+                { new TableNotFoundException(), typeof(NotFoundResult) },
+                { new RowNotFoundException(), typeof(NotFoundResult) },
+                { new InvalidRowException(), typeof(BadRequestErrorMessageResult) },
+                { new DbServiceException(), typeof(InternalServerErrorResult) }
+            };
+
+            foreach (KeyValuePair<Exception, Type> result in resultsDictionary)
+            {
+                // Arrange - mock dbService
+                this._dbServiceMock.Setup(s => s.UpdateRow(dbName, tableName, row))
+                    .Throws(result.Key);
+
+                // Arrange - create target
+                DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+
+                // Act
+                IHttpActionResult actionResult = target.UpdateRow(dbName, tableName, row);
+
+                // Assert
+                Assert.IsInstanceOf(result.Value, actionResult);
+            }
+        }
+
+        [Test]
+        public void UpdateRow_DatabaseServiceUpdatesRow_ReturnsOkResult()
+        {
+            // Arrange
+            string dbName = "testDatabase";
+            string tableName = "testTable";
+            Row row = new Row { Id = 1 };
+
+            // Arrange - create target
+            DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
+
+            // Act
+            IHttpActionResult actionResult = target.UpdateRow(dbName, tableName, row);
+
+            // Assert
+            Assert.IsInstanceOf<OkResult>(actionResult);
+
+            this._dbServiceMock.Verify(s => s.UpdateRow(dbName, tableName, row), Times.Once);
         }
     }
 }

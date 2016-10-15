@@ -22,6 +22,38 @@
             this._databaseService = databaseService;
         }
 
+        [Route("{dbName}/{tableName}")]
+        [HttpPost]
+        public IHttpActionResult AddRow(string dbName, string tableName, Row row)
+        {
+            try
+            {
+                this._databaseService.AddRow(dbName, tableName, row);
+
+                return this.Ok();
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.BadRequest("Database with such name does not exist.");
+            }
+            catch (TableNotFoundException)
+            {
+                return this.BadRequest("Table with such name does not exist.");
+            }
+            catch (InvalidRowException)
+            {
+                return this.BadRequest("Row is invalid.");
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
         [Route("")]
         [HttpPost]
         public IHttpActionResult CreateDatabase(string dbName)
@@ -75,6 +107,38 @@
             catch (TableAlreadyExistsException)
             {
                 return this.Conflict();
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
+        [Route("{dbName}/{tableName}")]
+        [HttpDelete]
+        public IHttpActionResult DeleteRow(string dbName, string tableName, int rowId)
+        {
+            try
+            {
+                this._databaseService.DeleteRow(dbName, tableName, rowId);
+
+                return this.Ok();
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (TableNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (RowNotFoundException)
+            {
+                return this.NotFound();
             }
             catch (DbServiceException)
             {
@@ -197,7 +261,8 @@
 
         [Route("{dbName}/{tableName}/projection")]
         [HttpGet]
-        public IHttpActionResult GetTableProjection(string dbName, string tableName, [FromUri] IEnumerable<string> attributesNames)
+        public IHttpActionResult GetTableProjection(string dbName, string tableName,
+                                                    [FromUri] IEnumerable<string> attributesNames)
         {
             try
             {
@@ -220,6 +285,42 @@
             catch (AttributeNotFoundException)
             {
                 return this.BadRequest("Nonexistent attribute's name.");
+            }
+            catch (DbServiceException)
+            {
+                return this.InternalServerError();
+            }
+        }
+
+        [Route("{dbName}/{tableName}")]
+        [HttpPut]
+        public IHttpActionResult UpdateRow(string dbName, string tableName, Row row)
+        {
+            try
+            {
+                this._databaseService.UpdateRow(dbName, tableName, row);
+
+                return this.Ok();
+            }
+            catch (ArgumentException)
+            {
+                return this.BadRequest();
+            }
+            catch (DatabaseNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (TableNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (RowNotFoundException)
+            {
+                return this.NotFound();
+            }
+            catch (InvalidRowException)
+            {
+                return this.BadRequest("Row is invalid.");
             }
             catch (DbServiceException)
             {

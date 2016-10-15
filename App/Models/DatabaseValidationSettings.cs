@@ -12,7 +12,7 @@
             // TODO: Load settings from config file.
             this._dataTypes = new Dictionary<string, Regex>
             {
-                { "char", new Regex(@"") }, { "integer", new Regex(@"") }, { "real", new Regex(@"") },
+                { "char", new Regex(@".*") }, { "integer", new Regex(@"^-?\d+$") }, { "real", new Regex(@"^-?\d+(\.\d+)?$") },
                 { "complexInteger", new Regex(@"") }, { "complexReal", new Regex(@"") }
             };
         }
