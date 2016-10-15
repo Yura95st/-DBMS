@@ -162,7 +162,7 @@
     <Compile Include="Exceptions\DatabaseNotFoundException.cs" />
     <Compile Include="Exceptions\DatabaseAlreadyExistsException.cs" />
     <Compile Include="Exceptions\InvalidTableSchemeException.cs" />
-    <Compile Include="Exceptions\InvalidNameFormatException.cs" />
+    <Compile Include="Exceptions\InvalidDatabaseNameException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -107,7 +107,7 @@
             Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
             {
                 { new ArgumentException(), typeof(BadRequestResult) },
-                { new InvalidNameFormatException(), typeof(BadRequestErrorMessageResult) },
+                { new InvalidDatabaseNameException(), typeof(BadRequestErrorMessageResult) },
                 { new DatabaseAlreadyExistsException(), typeof(ConflictResult) },
                 { new DbServiceException(), typeof(InternalServerErrorResult) }
             };

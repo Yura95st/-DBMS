@@ -66,7 +66,7 @@
 
             if (!this._databaseValidation.IsValidDatabaseName(dbName))
             {
-                throw new InvalidNameFormatException($"Database name \"{dbName}\" has invalid format.");
+                throw new InvalidDatabaseNameException($"Database name \"{dbName}\" has invalid format.");
             }
 
             IEnumerable<string> dbNames = this.GetDatabaseNames();

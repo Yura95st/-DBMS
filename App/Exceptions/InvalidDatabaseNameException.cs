@@ -2,20 +2,20 @@
 {
     using System;
 
-    public class InvalidNameFormatException : Exception
+    public class InvalidDatabaseNameException : Exception
     {
         #region Constructors
 
-        public InvalidNameFormatException()
+        public InvalidDatabaseNameException()
         {
         }
 
-        public InvalidNameFormatException(string message)
+        public InvalidDatabaseNameException(string message)
             : base(message)
         {
         }
 
-        public InvalidNameFormatException(string message, Exception inner)
+        public InvalidDatabaseNameException(string message, Exception inner)
             : base(message, inner)
         {
         }

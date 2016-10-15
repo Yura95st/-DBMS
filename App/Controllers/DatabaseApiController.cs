@@ -68,7 +68,7 @@
             {
                 return this.BadRequest();
             }
-            catch (InvalidNameFormatException)
+            catch (InvalidDatabaseNameException)
             {
                 return this.BadRequest("Invalid name format.");
             }

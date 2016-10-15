@@ -161,7 +161,7 @@
         }
 
         [Test]
-        public void CreateDatabase_DatabaseNameIsInvalid_ThrowsInvalidNameFormatException()
+        public void CreateDatabase_DatabaseNameIsInvalid_ThrowsInvalidDatabaseNameException()
         {
             // Arrange
             Database database = new Database { Name = "testDatabase" };
@@ -174,7 +174,7 @@
             IDatabaseService target = new DatabaseService(this._dbRepositoryMock.Object, this._dbValidationMock.Object);
 
             // Act and Assert
-            Assert.Throws<InvalidNameFormatException>(() => target.CreateDatabase(database.Name));
+            Assert.Throws<InvalidDatabaseNameException>(() => target.CreateDatabase(database.Name));
 
             this._dbRepositoryMock.Verify(r => r.Create(database), Times.Never);
         }
