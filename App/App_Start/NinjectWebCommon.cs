@@ -8,6 +8,9 @@ namespace App
     using System;
     using System.Web;
 
+    using App.Models;
+    using App.Services.Abstract;
+    using App.Services.Concrete;
     using App.Validations.Abstract;
     using App.Validations.Concrete;
 
@@ -68,6 +71,15 @@ namespace App
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+            // TODO: Load settings from config file
+            DatabaseValidationSettings databaseValidationSettings = new DatabaseValidationSettings();
+            DatabaseServiceSettings databaseSettings = new DatabaseServiceSettings();
+
+            kernel.Bind<IDatabaseValidation>()
+                .ToMethod(context => new DatabaseValidation(databaseValidationSettings));
+
+            kernel.Bind<IDatabaseService>()
+                .ToMethod(context => new DatabaseService(databaseSettings, context.Kernel.Get<IDatabaseValidation>()));
         }
     }
 }

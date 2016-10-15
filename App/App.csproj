@@ -143,11 +143,13 @@
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\DatabaseApiController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Dal\Repositories\Abstract\IDbRepository.cs" />
     <Compile Include="Dal\Repositories\Concrete\DbRepository.cs" />
     <Compile Include="DTOs\DatabaseDto.cs" />
     <Compile Include="DTOs\TableDto.cs" />
+    <Compile Include="Exceptions\DbServiceException.cs" />
     <Compile Include="Exceptions\DbRepositoryException.cs" />
     <Compile Include="Exceptions\NonexistentAttributeException.cs" />
     <Compile Include="Exceptions\InvalidAttributeException.cs" />
