@@ -5,6 +5,7 @@
 
     using App.Exceptions;
     using App.Models;
+    using App.Models.DataTypes.Abstract;
     using App.Utils;
     using App.Validations.Abstract;
 
@@ -61,9 +62,10 @@
 
             for (int i = 0; i < table.Attributes.Count; i++)
             {
-                Regex regex = this._settings.DataTypes[table.Attributes[i].Type];
+                IDataType dataType;
+                this._settings.DataTypes.TryGetValue(table.Attributes[i].Type, out dataType);
 
-                if (!regex.IsMatch(row.Value[i]))
+                if (dataType == null || !dataType.IsValidValue(row.Value[i]))
                 {
                     return false;
                 }

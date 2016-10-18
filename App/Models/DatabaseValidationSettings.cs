@@ -1,27 +1,30 @@
 ﻿namespace App.Models
 {
     using System.Collections.Generic;
-    using System.Text.RegularExpressions;
+    using System.Linq;
+
+    using App.Models.DataTypes.Abstract;
+    using App.Models.DataTypes.Concrete;
 
     public class DatabaseValidationSettings
     {
-        private readonly IDictionary<string, Regex> _dataTypes;
+        private readonly IDictionary<string, IDataType> _dataTypes;
 
         public DatabaseValidationSettings()
         {
             // TODO: Load settings from config file.
-            this._dataTypes = new Dictionary<string, Regex>
+            this._dataTypes = new Dictionary<string, IDataType>
             {
-                { "char", new Regex(@".*") }, { "integer", new Regex(@"^-?\d+$") }, { "real", new Regex(@"^-?\d+(\.\d+)?$") },
-                { "complexInteger", new Regex(@"") }, { "complexReal", new Regex(@"") }
+                { "char", new CharDataType() }, { "integer", new IntDataType() }, { "double", new DoubleDataType() },
+                { "complexDouble", new ComplexDoubleDataType() }, { "complexInteger", new ComplexIntDataType() }
             };
         }
 
-        public DatabaseValidationSettings(IDictionary<string, Regex> dataTypes)
+        public DatabaseValidationSettings(IDictionary<string, IDataType> dataTypes)
         {
             this._dataTypes = dataTypes;
         }
 
-        public IDictionary<string, Regex> DataTypes => this._dataTypes;
+        public IDictionary<string, IDataType> DataTypes => this._dataTypes;
     }
 }

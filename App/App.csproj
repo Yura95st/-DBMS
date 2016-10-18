@@ -169,6 +169,12 @@
     </Compile>
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\Database.cs" />
+    <Compile Include="Models\DataTypes\Abstract\IDataType.cs" />
+    <Compile Include="Models\DataTypes\Concrete\ComplexDoubleDataType.cs" />
+    <Compile Include="Models\DataTypes\Concrete\DoubleDataType.cs" />
+    <Compile Include="Models\DataTypes\Concrete\CharDataType.cs" />
+    <Compile Include="Models\DataTypes\Concrete\ComplexIntDataType.cs" />
+    <Compile Include="Models\DataTypes\Concrete\IntDataType.cs" />
     <Compile Include="Models\DbRepositorySettings.cs" />
     <Compile Include="Models\DatabaseValidationSettings.cs" />
     <Compile Include="Models\Row.cs" />

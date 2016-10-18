@@ -4,17 +4,21 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text.RegularExpressions;
 
     using App.Exceptions;
     using App.Models;
+    using App.Models.DataTypes.Abstract;
     using App.Validations.Concrete;
+
+    using Moq;
 
     using NUnit.Framework;
 
     [TestFixture]
     public class DatabaseValidationTests
     {
+        private Mock<IDataType> _dataTypeMock;
+
         private DatabaseValidationSettings _dbValidationSettings;
 
         [Test]
@@ -194,26 +198,33 @@
 
             // Act and Assert
             Assert.IsTrue(target.DoesRowFitTable(table, row));
+
+            this._dataTypeMock.Verify(r => r.IsValidValue(row.Value.First()), Times.Once);
         }
 
         [Test]
         public void DoesRowFitTable_RowHasInvalidValue_ReturnsFalse()
         {
             // Arrange
+            string typeName = "testType";
+
             Table table = new Table
             {
                 Name = "testTable",
-                Attributes =
-                    new List<Models.Attribute>
-                    {
-                        new Models.Attribute
-                            { Name = "testAttribute", Type = this._dbValidationSettings.DataTypes.Keys.First() }
-                    }
+                Attributes = new List<Models.Attribute> { new Models.Attribute { Name = "testAttribute", Type = typeName } }
             };
             Row row = new Row { Value = new List<string> { "1234sometext" } };
 
+            // Arrange - mock dataType
+            this._dataTypeMock.Setup(t => t.IsValidValue(row.Value.First()))
+                .Returns(false);
+
+            DatabaseValidationSettings dbValidationSettings =
+                new DatabaseValidationSettings(dataTypes:
+                    new Dictionary<string, IDataType> { { typeName, this._dataTypeMock.Object } });
+
             // Arrange - create target
-            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
+            DatabaseValidation target = new DatabaseValidation(dbValidationSettings);
 
             // Act and Assert
             Assert.IsFalse(target.DoesRowFitTable(table, row));
@@ -222,9 +233,11 @@
         [SetUp]
         public void Init()
         {
+            this.MockDataType();
+
             this._dbValidationSettings =
                 new DatabaseValidationSettings(dataTypes:
-                    new Dictionary<string, Regex> { { "someType", new Regex(@"^-*[0-9]+$") } });
+                    new Dictionary<string, IDataType> { { "someType", this._dataTypeMock.Object } });
         }
 
         [Test]
@@ -254,6 +267,17 @@
 
             // Act and Assert
             Assert.IsTrue(target.IsValidDatabaseName(dbName));
+        }
+
+        private void MockDataType()
+        {
+            this._dataTypeMock = new Mock<IDataType>();
+
+            this._dataTypeMock.Setup(t => t.DefaultValue)
+                .Returns("defaultValue");
+
+            this._dataTypeMock.Setup(t => t.IsValidValue(It.IsAny<string>()))
+                .Returns(true);
         }
     }
 }
