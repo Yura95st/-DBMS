@@ -1,5 +1,5 @@
-﻿@using App.Models
-@model App.Models.Table
+﻿@using Domain.Models
+@model Domain.Models.Table
 
 @{
     ViewBag.Title = "ShowTable";
@@ -20,7 +20,7 @@
     <thead>
     <tr>
         <th />
-        @foreach (App.Models.Attribute attribute in Model.Attributes)
+        @foreach (var attribute in Model.Attributes)
         {
             <th>@attribute.Name</th>
         }

@@ -1,4 +1,4 @@
-﻿@model App.Models.TableScheme
+﻿@model Domain.Models.TableScheme
 
 @{
     ViewBag.Title = "ShowTableScheme";
@@ -23,7 +23,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (App.Models.Attribute attribute in Model.Attributes)
+    @foreach (var attribute in Model.Attributes)
     {
         <tr>
             <td>@attribute.Name</td>
