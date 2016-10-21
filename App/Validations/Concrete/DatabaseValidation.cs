@@ -1,5 +1,6 @@
 ﻿namespace App.Validations.Concrete
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Text.RegularExpressions;
 
@@ -36,11 +37,19 @@
                 throw new InvalidTableAttributesException("Table scheme has no attributes.");
             }
 
+            HashSet<string> attributesNames = new HashSet<string>();
+
             try
             {
                 foreach (Models.Attribute attribute in tableScheme.Attributes)
                 {
                     this.CheckAttribute(attribute);
+
+                    if (attributesNames.Contains(attribute.Name))
+                    {
+                        throw new InvalidAttributeException($"Attribute's name \"{attribute.Name}\" is not unique.");
+                    }
+                    attributesNames.Add(attribute.Name);
                 }
             }
             catch (InvalidAttributeException ex)

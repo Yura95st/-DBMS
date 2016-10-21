@@ -48,6 +48,31 @@
         }
 
         [Test]
+        public void CheckTableScheme_TableSchemeHasAttributeWithNotUniqueName_ThrowsInvalidTableAttributesException()
+        {
+            // Arrange
+            string attributeName = "someAttribute";
+            string attributeType = this._dbValidationSettings.DataTypes.Keys.First();
+
+            TableScheme tableScheme = new TableScheme("testTable",
+                new List<Models.Attribute>
+                {
+                    new Models.Attribute { Name = attributeName, Type = attributeType },
+                    new Models.Attribute { Name = attributeName, Type = attributeType }
+                });
+
+            // Arrange - create target
+            DatabaseValidation target = new DatabaseValidation(this._dbValidationSettings);
+
+            // Act and Assert
+            InvalidTableAttributesException ex =
+                    Assert.Throws<InvalidTableAttributesException>(() => target.CheckTableScheme(tableScheme));
+
+            Assert.NotNull(ex.InnerException);
+            Assert.AreSame(ex.InnerException.GetType(), typeof(InvalidAttributeException));
+        }
+
+        [Test]
         public void CheckTableScheme_TableSchemeHasAttributeWithUnknownType_ThrowsInvalidAttributeException()
         {
             // Arrange
