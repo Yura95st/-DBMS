@@ -1,26 +1,10 @@
 ﻿namespace App.Models.DataTypes.Concrete
 {
-    using System;
-
-    using App.Models.DataTypes.Abstract;
-
-    public class ComplexDoubleDataType : IDataType
+    public class ComplexDoubleDataType : ComplexDataType
     {
-        #region IDataType Members
-
-        public bool IsValidValue(string value)
+        public ComplexDoubleDataType()
+            : base(@"\d*(\.\d+)?")
         {
-            throw new NotImplementedException();
         }
-
-        public string DefaultValue
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        #endregion
     }
 }

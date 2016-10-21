@@ -170,6 +170,7 @@
     <Compile Include="Models\Attribute.cs" />
     <Compile Include="Models\Database.cs" />
     <Compile Include="Models\DataTypes\Abstract\IDataType.cs" />
+    <Compile Include="Models\DataTypes\Concrete\ComplexDataType.cs" />
     <Compile Include="Models\DataTypes\Concrete\ComplexDoubleDataType.cs" />
     <Compile Include="Models\DataTypes\Concrete\DoubleDataType.cs" />
     <Compile Include="Models\DataTypes\Concrete\CharDataType.cs" />
