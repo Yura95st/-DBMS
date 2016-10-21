@@ -868,6 +868,8 @@
         public void GetTableProjection_ArgumetnsAreValid_ReturnsTable()
         {
             // Arrange
+            List<int> attributesIndexes = new List<int> { this._testTable.Attributes.Count - 1 };
+
             string dbName = this._testDb.Name;
             Table testTable = new Table
             {
@@ -877,19 +879,21 @@
                     this._testTable.Rows.ToDictionary(kvp => kvp.Key,
                         kvp => new Row { Id = kvp.Value.Id, Value = kvp.Value.Value.ToList() })
             };
-            string[] attributesNames =
-            {
-                testTable.Attributes.First()
-                    .Name
-            };
 
-            for (int i = 1; i < testTable.Attributes.Count; i++)
-            {
-                testTable.Attributes.RemoveAt(i);
+            var attributesNames = testTable.Attributes.Where((item, index) => attributesIndexes.Contains(index))
+                .Select(item => item.Name)
+                .ToList();
 
-                foreach (Row row in testTable.Rows.Values)
+            for (int i = testTable.Attributes.Count - 1; i >= 0; i--)
+            {
+                if (!attributesIndexes.Contains(i))
                 {
-                    row.Value.RemoveAt(i);
+                    testTable.Attributes.RemoveAt(i);
+
+                    foreach (Row row in testTable.Rows.Values)
+                    {
+                        row.Value.RemoveAt(i);
+                    }
                 }
             }
 
@@ -1143,7 +1147,7 @@
 
         private void InitDatabase()
         {
-            Row row = new Row { Id = 1, Value = { "someValue", "anotherValue" } };
+            Row row = new Row { Id = 1, Value = { "someValue", "anotherValue", "thirdValue" } };
 
             this._testTable = new Table
             {
@@ -1151,7 +1155,8 @@
                 Attributes =
                 {
                     new Models.Attribute { Name = "firstAttribute", Type = "someType" },
-                    new Models.Attribute { Name = "secondAttribute", Type = "anotherType" }
+                    new Models.Attribute { Name = "secondAttribute", Type = "anotherType" },
+                    new Models.Attribute { Name = "thirdAttribute", Type = "otherType" },
                 },
                 Rows = { { row.Id, row } }
             };

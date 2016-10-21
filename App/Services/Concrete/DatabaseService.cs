@@ -258,7 +258,7 @@
                     attributesIndexes.Add(table.Attributes.IndexOf(attribute));
                 }
 
-                for (int i = 0; i < table.Attributes.Count; i++)
+                for (int i = table.Attributes.Count - 1; i >=0; i--)
                 {
                     if (!attributesIndexes.Contains(i))
                     {
