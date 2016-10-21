@@ -8,13 +8,13 @@ namespace App
     using System;
     using System.Web;
 
-    using App.Dal.Repositories.Abstract;
-    using App.Dal.Repositories.Concrete;
-    using App.Models;
-    using App.Services.Abstract;
-    using App.Services.Concrete;
-    using App.Validations.Abstract;
-    using App.Validations.Concrete;
+    using Domain.Dal.Repositories.Abstract;
+    using Domain.Dal.Repositories.Concrete;
+    using Domain.Models;
+    using Domain.Services.Abstract;
+    using Domain.Services.Concrete;
+    using Domain.Validations.Abstract;
+    using Domain.Validations.Concrete;
 
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 

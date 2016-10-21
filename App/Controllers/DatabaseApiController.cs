@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.Web.Http;
 
-    using App.DTOs;
-    using App.Exceptions;
-    using App.Models;
-    using App.Services.Abstract;
-    using App.Utils;
+    using Domain.DTOs;
+    using Domain.Exceptions;
+    using Domain.Models;
+    using Domain.Services.Abstract;
+    using Domain.Utils;
 
     [RoutePrefix("api/databases")]
     public class DatabaseApiController : ApiController

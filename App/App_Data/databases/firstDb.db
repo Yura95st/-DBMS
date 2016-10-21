@@ -1,0 +1,101 @@
+{
+    "Name": "firstDb",
+    "Tables": {
+        "users": {
+            "Attributes": [
+                {
+                    "Name": "name",
+                    "Type": "char"
+                },
+                {
+                    "Name": "age",
+                    "Type": "integer"
+                }
+            ],
+            "Name": "users",
+            "NextRowId": 4,
+            "Rows": {
+                "1": {
+                    "Id": 1,
+                    "Value": [ "Bob", "22" ]
+                },
+                "2": {
+                    "Id": 2,
+                    "Value": [ "Alice", "20" ]
+                }
+            }
+        },
+        "math": {
+            "Attributes": [
+                {
+                    "Name": "a",
+                    "Type": "complexInteger"
+                },
+                {
+                    "Name": "b",
+                    "Type": "complexDouble"
+                },
+                {
+                    "Name": "c",
+                    "Type": "double"
+                },
+                {
+                    "Name": "d",
+                    "Type": "integer"
+                },
+                {
+                    "Name": "e",
+                    "Type": "char"
+                }
+            ],
+            "Name": "math",
+            "NextRowId": 12,
+            "Rows": {
+                "1": {
+                    "Id": 1,
+                    "Value": [ "1+2i", "1+2i", "1.0", "-10", "a" ]
+                },
+                "2": {
+                    "Id": 2,
+                    "Value": [ "1+2i", "1+2i", "1.0", "-10", "a" ]
+                },
+                "3": {
+                    "Id": 3,
+                    "Value": [ "1+2i", "1+2i", "1.0", "-10", "a" ]
+                },
+                "4": {
+                    "Id": 4,
+                    "Value": [ "1+2i", "1.0+2.0i", "1.0", "-10", "a" ]
+                },
+                "5": {
+                    "Id": 5,
+                    "Value": [ "1+2i", "-i", "1.0", "-10", "a" ]
+                },
+                "6": {
+                    "Id": 6,
+                    "Value": [ "1+2i", "-i", "1.0", "-10", "c" ]
+                },
+                "7": {
+                    "Id": 7,
+                    "Value": [ "1+2i", "-i", "1.0", "-0", "c" ]
+                },
+                "8": {
+                    "Id": 8,
+                    "Value": [ "1+2i", "-i", "1.0", "+0", "c" ]
+                },
+                "9": {
+                    "Id": 9,
+                    "Value": [ "1+2i", "-i", "0", "+0", "c" ]
+                },
+                "10": {
+                    "Id": 10,
+                    "Value": [ "1+2i", "-i", ".0123123", "+0", "c" ]
+                },
+                "11": {
+                    "Id": 11,
+                    "Value": [ "+i", "-i", ".0123123", "+0", "c" ]
+                }
+            }
+        }
+    }
+}

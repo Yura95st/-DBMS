@@ -7,10 +7,11 @@
     using System.Web.Http.Results;
 
     using App.Controllers;
-    using App.DTOs;
-    using App.Exceptions;
-    using App.Models;
-    using App.Services.Abstract;
+
+    using Domain.DTOs;
+    using Domain.Exceptions;
+    using Domain.Models;
+    using Domain.Services.Abstract;
 
     using Moq;
 
@@ -134,7 +135,7 @@
         {
             // Arrange
             string dbName = "testDatabase";
-            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
+            TableScheme tableScheme = new TableScheme("testTable", new List<Domain.Models.Attribute>());
 
             // Arrange - create target
             DatabaseApiController target = new DatabaseApiController(this._dbServiceMock.Object);
@@ -159,7 +160,7 @@
         {
             // Arrange
             string dbName = "testDatabase";
-            TableScheme tableScheme = new TableScheme("testTable", new List<Models.Attribute>());
+            TableScheme tableScheme = new TableScheme("testTable", new List<Domain.Models.Attribute>());
 
             Dictionary<Exception, Type> resultsDictionary = new Dictionary<Exception, Type>
             {
@@ -469,7 +470,8 @@
             string dbName = "testDatabase";
             Table table = new Table
             {
-                Name = "testTable", Attributes = { new Models.Attribute { Name = "firstAttribute", Type = "someType" } },
+                Name = "testTable",
+                Attributes = { new Domain.Models.Attribute { Name = "firstAttribute", Type = "someType" } },
                 Rows = { { 0, new Row { Id = 0, Value = { "firstValue" } } } }
             };
 
@@ -557,7 +559,7 @@
             Table table = new Table
             {
                 Name = "testTable",
-                Attributes = { new Models.Attribute { Name = attributesNames.First(), Type = "someType" } },
+                Attributes = { new Domain.Models.Attribute { Name = attributesNames.First(), Type = "someType" } },
                 Rows = { { 0, new Row { Id = 0, Value = { "firstValue" } } } }
             };
 

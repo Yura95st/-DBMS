@@ -2,10 +2,10 @@
 {
     using System.Web.Mvc;
 
-    using App.DTOs;
-    using App.Models;
-    using App.Services.Abstract;
-    using App.Utils;
+    using Domain.DTOs;
+    using Domain.Models;
+    using Domain.Services.Abstract;
+    using Domain.Utils;
 
     public class HomeController : Controller
     {
