@@ -29,7 +29,7 @@
 
             routes.MapRoute(name: null, url: "databases", defaults: new { controller = "Home", action = "Index" });
 
-            //routes.MapRoute(name: null, url: "{controller}/{action}", defaults: new { controller = "Home", action = "Index" });
+            routes.MapRoute(name: null, url: "{controller}/{action}", defaults: new { controller = "Home", action = "Index" });
         }
     }
 }
