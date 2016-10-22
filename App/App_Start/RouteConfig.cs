@@ -9,11 +9,14 @@
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            routes.MapRoute(name: null, url: "databases/{dbName}/{tableName}/editRow/{rowId}",
-                defaults: new { controller = "Home", action = "EditRow" });
+            //routes.MapRoute(name: null, url: "databases/{dbName}/{tableName}/editRow/{rowId}",
+            //    defaults: new { controller = "Home", action = "EditRow" });
 
-            routes.MapRoute(name: null, url: "databases/{dbName}/{tableName}/addRow",
-                defaults: new { controller = "Home", action = "AddRow" });
+            //routes.MapRoute(name: null, url: "databases/{dbName}/{tableName}/addRow",
+            //    defaults: new { controller = "Home", action = "AddRow" });
+
+            routes.MapRoute(name: null, url: "databases/{dbName}/{tableName}/projection",
+                defaults: new { controller = "Home", action = "ShowTableProjection" });
 
             routes.MapRoute(name: null, url: "databases/{dbName}/{tableName}/scheme",
                 defaults: new { controller = "Home", action = "ShowTableScheme" });
@@ -26,7 +29,7 @@
 
             routes.MapRoute(name: null, url: "databases", defaults: new { controller = "Home", action = "Index" });
 
-            routes.MapRoute(name: null, url: "{controller}/{action}", defaults: new { controller = "Home", action = "Index" });
+            //routes.MapRoute(name: null, url: "{controller}/{action}", defaults: new { controller = "Home", action = "Index" });
         }
     }
 }

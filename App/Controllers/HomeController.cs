@@ -1,8 +1,12 @@
 ﻿namespace App.Controllers
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web.Http;
     using System.Web.Mvc;
 
-    using Domain.DTOs;
+    using App.ViewModels;
+
     using Domain.Models;
     using Domain.Services.Abstract;
     using Domain.Utils;
@@ -34,7 +38,9 @@
                 return new HttpNotFoundResult("Database not found.");
             }
 
-            return this.View(new DatabaseDto { Name = db.Name, TableNames = db.Tables.Keys });
+            DatabaseViewModel dbViewModel = new DatabaseViewModel { Name = db.Name, TableNames = db.Tables.Keys.ToList() };
+
+            return this.View(dbViewModel);
         }
 
         public ActionResult ShowTable(string dbName, string tableName)
@@ -46,7 +52,23 @@
                 return new HttpNotFoundResult("Table not found.");
             }
 
-            return this.View(table);
+            TableViewModel tableViewModel = HomeController.GetTableViewModel(dbName, table);
+
+            return this.View(tableViewModel);
+        }
+
+        public ActionResult ShowTableProjection(string dbName, string tableName,
+                                                [FromUri] IEnumerable<string> attributesNames)
+        {
+            Table table = this._databaseService.GetTableProjection(dbName, tableName, attributesNames);
+            if (table == null)
+            {
+                return new HttpNotFoundResult("Table not found.");
+            }
+
+            TableViewModel tableViewModel = HomeController.GetTableViewModel(dbName, table);
+
+            return this.View("ShowTable", tableViewModel);
         }
 
         public ActionResult ShowTableScheme(string dbName, string tableName)
@@ -58,9 +80,21 @@
                 return new HttpNotFoundResult("Table not found.");
             }
 
-            TableScheme tableScheme = new TableScheme(table.Name, table.Attributes);
+            TableSchemeViewModel tableSchemeViewModel = new TableSchemeViewModel
+                { Name = table.Name, DbName = dbName, Attributes = table.Attributes.ToList() };
 
-            return this.View(tableScheme);
+            return this.View(tableSchemeViewModel);
+        }
+
+        private static TableViewModel GetTableViewModel(string dbName, Table table)
+        {
+            TableViewModel tableViewModel = new TableViewModel
+            {
+                Scheme =
+                    new TableSchemeViewModel { Name = table.Name, DbName = dbName, Attributes = table.Attributes.ToList() },
+                Rows = table.Rows.Values.ToList()
+            };
+            return tableViewModel;
         }
     }
 }

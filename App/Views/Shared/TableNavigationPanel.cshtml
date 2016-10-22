@@ -1,0 +1,7 @@
+﻿@using App.Helpers
+@model App.ViewModels.TableNavigationPanelViewModel
+
+<ul class="nav nav-pills" style="margin: 0 0 10px;">
+    @Html.LiActionLink("Browse", "ShowTable", "Home", new { dbName = Model.DbName, tableName = Model.TableName })
+    @Html.LiActionLink("Scheme", "ShowTableScheme", "Home", new { dbName = Model.DbName, tableName = Model.TableName })
+</ul>

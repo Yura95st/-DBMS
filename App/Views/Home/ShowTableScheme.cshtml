@@ -1,21 +1,23 @@
-﻿@model Domain.Models.TableScheme
+﻿@using App.ViewModels
+@model App.ViewModels.TableSchemeViewModel
 
 @{
-    ViewBag.Title = "ShowTableScheme";
+    ViewBag.Title = $"TableScheme: {Model.Name}";
 }
 
 <h2>@Model.Name</h2>
 
-<ul class="nav nav-pills">
-    <li class="active" role="presentation">
-        <a href="#">Browse</a>
-    </li>
-    <li role="presentation">
-        <a href="#">Scheme</a>
-    </li>
-</ul>
+@{
+    TableNavigationPanelViewModel viewModel = new TableNavigationPanelViewModel
+    {
+        DbName = Model.DbName,
+        TableName = Model.Name
+    };
 
-<table class="table table-bordered table-responsive table-striped" style="margin: 10px 0 0;">
+    Html.RenderPartial("TableNavigationPanel", viewModel);
+}
+
+<table class="table table-bordered table-responsive table-striped">
     <thead>
     <tr>
         <th>Attribute</th>
