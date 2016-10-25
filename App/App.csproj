@@ -180,9 +180,6 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj">
       <Project>{9b2a25f0-e2e8-4ba1-91a7-7b4b8986a019}</Project>
       <Name>Domain</Name>
@@ -199,7 +196,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>62227</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

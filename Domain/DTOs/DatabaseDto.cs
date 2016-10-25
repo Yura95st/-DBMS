@@ -3,6 +3,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using Domain.Models;
+    using Domain.Utils;
+
     public class DatabaseDto
     {
         public DatabaseDto()
@@ -20,6 +23,15 @@
         {
             get;
             set;
+        }
+
+        public static DatabaseDto CreateFromDatabase(Database database)
+        {
+            Guard.NotNull(database, "database");
+
+            DatabaseDto dbDto = new DatabaseDto { Name = database.Name, TableNames = database.Tables.Keys };
+
+            return dbDto;
         }
     }
 }

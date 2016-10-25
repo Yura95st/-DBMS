@@ -210,7 +210,7 @@
                     return this.NotFound();
                 }
 
-                return this.Ok(DatabaseApiController.GetDatabaseDto(database));
+                return this.Ok(DatabaseDto.CreateFromDatabase(database));
             }
             catch (ArgumentException)
             {
@@ -243,7 +243,7 @@
                     return this.NotFound();
                 }
 
-                return this.Ok(DatabaseApiController.GetTableDto(table));
+                return this.Ok(TableDto.CreateFromTable(table));
             }
             catch (ArgumentException)
             {
@@ -272,7 +272,7 @@
                     return this.NotFound();
                 }
 
-                return this.Ok(DatabaseApiController.GetTableDto(table));
+                return this.Ok(TableDto.CreateFromTable(table));
             }
             catch (ArgumentException)
             {
@@ -326,20 +326,6 @@
             {
                 return this.InternalServerError();
             }
-        }
-
-        private static DatabaseDto GetDatabaseDto(Database database)
-        {
-            DatabaseDto dbDto = new DatabaseDto { Name = database.Name, TableNames = database.Tables.Keys };
-
-            return dbDto;
-        }
-
-        private static TableDto GetTableDto(Table table)
-        {
-            TableDto tableDto = new TableDto { Name = table.Name, Attributes = table.Attributes, Rows = table.Rows.Values };
-
-            return tableDto;
         }
     }
 }

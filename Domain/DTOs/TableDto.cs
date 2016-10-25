@@ -4,6 +4,7 @@
     using System.Linq;
 
     using Domain.Models;
+    using Domain.Utils;
 
     public class TableDto
     {
@@ -29,6 +30,15 @@
         {
             get;
             set;
+        }
+
+        public static TableDto CreateFromTable(Table table)
+        {
+            Guard.NotNull(table, "table");
+
+            TableDto tableDto = new TableDto { Name = table.Name, Attributes = table.Attributes, Rows = table.Rows.Values };
+
+            return tableDto;
         }
     }
 }
