@@ -2,7 +2,9 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.Serialization;
 
+    [DataContract]
     public class Row
     {
         public Row()
@@ -10,12 +12,14 @@
             this.Value = new List<string>();
         }
 
+        [DataMember]
         public int Id
         {
             get;
             set;
         }
 
+        [DataMember]
         public IList<string> Value
         {
             get;

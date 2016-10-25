@@ -2,10 +2,12 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.Serialization;
 
     using Domain.Models;
     using Domain.Utils;
 
+    [DataContract]
     public class TableDto
     {
         public TableDto()
@@ -14,18 +16,21 @@
             this.Rows = Enumerable.Empty<Row>();
         }
 
+        [DataMember]
         public IList<Attribute> Attributes
         {
             get;
             set;
         }
 
+        [DataMember]
         public string Name
         {
             get;
             set;
         }
 
+        [DataMember]
         public IEnumerable<Row> Rows
         {
             get;
