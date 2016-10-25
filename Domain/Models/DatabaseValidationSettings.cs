@@ -11,7 +11,6 @@
 
         public DatabaseValidationSettings()
         {
-            // TODO: Load settings from config file.
             this._dataTypes = new Dictionary<string, IDataType>
             {
                 { "char", new CharDataType() }, { "integer", new IntDataType() }, { "double", new DoubleDataType() },

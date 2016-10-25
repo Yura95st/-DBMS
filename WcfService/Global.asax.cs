@@ -30,23 +30,19 @@
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            // TODO: Load settings from config file
             DatabaseValidationSettings databaseValidationSettings = new DatabaseValidationSettings();
             DbRepositorySettings dbRepositorySettings = new DbRepositorySettings();
 
             this._container = new WindsorContainer();
-
             this._container.AddFacility<WcfFacility>()
-                .Register(Component.For<IDatabaseValidation>()
-                        .ImplementedBy<DatabaseValidation>()
-                        .DependsOn(Dependency.OnValue<DatabaseValidationSettings>(databaseValidationSettings)),
-                    Component.For<IDbRepository>()
-                        .ImplementedBy<DbRepository>()
-                        .DependsOn(Dependency.OnValue<DbRepositorySettings>(dbRepositorySettings)),
-                    Component.For<IDatabaseService>()
-                        .ImplementedBy<DatabaseService>(), Component.For<IDbWcfService>()
-                        .ImplementedBy<DbWcfService>()
-                        .Named("DbWcfService"));
+                .Register(Component.For<DatabaseValidationSettings>()
+                    .Instance(databaseValidationSettings), Component.For<DbRepositorySettings>()
+                    .Instance(dbRepositorySettings), Component.For<IDatabaseValidation>()
+                    .ImplementedBy<DatabaseValidation>(), Component.For<IDbRepository>()
+                    .ImplementedBy<DbRepository>(), Component.For<IDatabaseService>()
+                    .ImplementedBy<DatabaseService>(), Component.For<IDbWcfService>()
+                    .ImplementedBy<DbWcfService>()
+                    .Named("DbWcfService"));
         }
     }
 }

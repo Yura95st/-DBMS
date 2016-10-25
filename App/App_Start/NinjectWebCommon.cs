@@ -73,18 +73,17 @@ namespace App
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
-            // TODO: Load settings from config file
             DatabaseValidationSettings databaseValidationSettings = new DatabaseValidationSettings();
             DbRepositorySettings dbRepositorySettings = new DbRepositorySettings();
 
-            kernel.Bind<IDbRepository>()
-                .ToMethod(context => new DbRepository(dbRepositorySettings));
+            kernel.Bind<DatabaseValidationSettings>()
+                .ToMethod(context => databaseValidationSettings);
+            kernel.Bind<DbRepositorySettings>()
+                .ToMethod(context => dbRepositorySettings);
 
-            kernel.Bind<IDatabaseValidation>()
-                .ToMethod(context => new DatabaseValidation(databaseValidationSettings));
-
-            kernel.Bind<IDatabaseService>()
-                .ToMethod(context => new DatabaseService(context.Kernel.Get<IDbRepository>(), context.Kernel.Get<IDatabaseValidation>()));
+            kernel.Bind<IDbRepository>().To<DbRepository>();
+            kernel.Bind<IDatabaseValidation>().To<DatabaseValidation>();
+            kernel.Bind<IDatabaseService>().To<DatabaseService>();
         }
     }
 }

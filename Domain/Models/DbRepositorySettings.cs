@@ -1,6 +1,7 @@
 ﻿namespace Domain.Models
 {
     using System;
+    using System.Configuration;
 
     public class DbRepositorySettings
     {
@@ -12,10 +13,9 @@
 
         public DbRepositorySettings()
         {
-            // TODO: Load settings from config file.
             this._storagePath = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            this._dbFileNameFormat = "{0}.db";
-            this._databasesDirectoryName = "databases";
+            this._dbFileNameFormat = ConfigurationManager.AppSettings["DbFileNameFormat"];
+            this._databasesDirectoryName = ConfigurationManager.AppSettings["DatabasesDirectoryName"];
         }
 
         public DbRepositorySettings(string storagePath, string dbFileNameFormat, string databasesDirectoryName)
