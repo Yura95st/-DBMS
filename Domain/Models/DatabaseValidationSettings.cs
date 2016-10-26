@@ -4,6 +4,7 @@
 
     using Domain.Models.DataTypes.Abstract;
     using Domain.Models.DataTypes.Concrete;
+    using Domain.Utils;
 
     public class DatabaseValidationSettings
     {
@@ -20,6 +21,8 @@
 
         public DatabaseValidationSettings(IDictionary<string, IDataType> dataTypes)
         {
+            Guard.NotNull(dataTypes, "dataTypes");
+
             this._dataTypes = dataTypes;
         }
 
