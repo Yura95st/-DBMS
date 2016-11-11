@@ -22,7 +22,7 @@
             this._databaseService = databaseService;
         }
 
-        [Route("{dbName}/{tableName}")]
+        [Route("{dbName}/{tableName}/rows")]
         [HttpPost]
         public IHttpActionResult AddRow(string dbName, string tableName, Row row)
         {
@@ -114,7 +114,7 @@
             }
         }
 
-        [Route("{dbName}/{tableName}")]
+        [Route("{dbName}/{tableName}/rows/{rowId}")]
         [HttpDelete]
         public IHttpActionResult DeleteRow(string dbName, string tableName, int rowId)
         {
@@ -146,7 +146,7 @@
             }
         }
 
-        [Route("")]
+        [Route("{dbName}")]
         [HttpDelete]
         public IHttpActionResult DropDatabase(string dbName)
         {
@@ -170,7 +170,7 @@
             }
         }
 
-        [Route("{dbName}")]
+        [Route("{dbName}/{tableName}")]
         [HttpDelete]
         public IHttpActionResult DropTable(string dbName, string tableName)
         {
@@ -292,7 +292,7 @@
             }
         }
 
-        [Route("{dbName}/{tableName}")]
+        [Route("{dbName}/{tableName}/rows")]
         [HttpPut]
         public IHttpActionResult UpdateRow(string dbName, string tableName, Row row)
         {
